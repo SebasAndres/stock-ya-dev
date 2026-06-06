@@ -1,4 +1,4 @@
-# Tokens de Productos para Kioscos
+# StockYa
 
 Sistema de tokenización de stock físico para financiamiento de kioscos y almacenes, inspirado en el modelo de *warehouse receipt financing* (similar a los certificados de depósito de soja en silos argentinos).
 
