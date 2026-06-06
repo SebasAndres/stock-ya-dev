@@ -121,6 +121,26 @@ func (h *handlers) payAdvance(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, advance)
 }
 
+// POST /api/businesses/{id}/assessment
+func (h *handlers) submitAssessment(w http.ResponseWriter, r *http.Request) {
+	bizID := r.PathValue("id")
+	var req SubmitAssessmentReq
+	if err := decode(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if req.YearsOpen == 0 && req.DailyCustomers == 0 {
+		writeError(w, http.StatusBadRequest, "yearsOpen and dailyCustomers are required")
+		return
+	}
+	biz, err := h.store.submitAssessment(bizID, req)
+	if err != nil {
+		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, biz)
+}
+
 // POST /api/advances/{id}/delivery
 func (h *handlers) requestDelivery(w http.ResponseWriter, r *http.Request) {
 	advanceID := r.PathValue("id")

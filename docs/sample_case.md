@@ -45,12 +45,12 @@ El primer adelanto está limitado a **$50.000 ARS** por política de cold-start 
 Para que el negocio de crédito sea autosustentable (sin considerar B y C, que son costos de infraestructura), la expectativa de cobranza debe superar el costo de fondeo:
 
 $$
-\begin{aligned}
+\begin{align*}
 d \times A \times t' &> t \times A \\
 \implies d \times t' &> t \\
 \implies 0{,}85 \times t' &> 0{,}045 \\
 \implies t' &> 5{,}29\% \text{ TEM}
-\end{aligned}
+\end{align*}
 $$
 
 **Conclusión:** La tasa mínima rentable para el portafolio agragado es **t' > 5,3 % TEM**. Todo cliente con score que implique una tasa < 5,3 % TEM debe rechazarse o reclasificarse.
@@ -58,12 +58,12 @@ $$
 La tasa de los clientes iniciales sin historial se fija en **t'₀ = 6 % TEM**, generando un margen bruto de:
 
 $$
-\begin{aligned}
+\begin{align*}
 \text{margen\_bruto} &= d \times A \times (t' - t) \\
 &= 0{,}85 \times \$1.400.000 \times (0{,}06 - 0{,}045) \\
 &= 0{,}85 \times \$1.400.000 \times 0{,}015 \\
 &= \$17.850 \text{ ARS / mes}
-\end{aligned}
+\end{align*}
 $$
 
 ### 2.2 Restricción de cobertura con fondeo externo
@@ -71,10 +71,10 @@ $$
 Si los adelantos superan el pool A (por ejemplo en un mes de fuerte demanda), StockYa puede financiarse externamente a tasa t. La condición de solvencia es:
 
 $$
-\begin{aligned}
+\begin{align*}
 \text{ingreso\_esperado} &\geq \text{costo\_externo} \\
 d \times \text{cartera\_total} \times t' &\geq t \times \text{exceso\_financiado}
-\end{aligned}
+\end{align*}
 $$
 
 donde $\text{exceso\_financiado} = \max(0,\ \text{cartera\_total} - A)$.
@@ -136,11 +136,11 @@ Al cabo de 30 días, con las ventas de las Coca-Colas, Almacén #1 repaga **$43.
 **Efecto en el portafolio StockYa (Mes 1, cliente único):**
 
 $$
-\begin{aligned}
+\begin{align*}
 \text{Ingreso bruto} &= \$43.248 - \$40.800 = \$2.448 \text{ ARS} \\
 \text{Costo de fondeo} &= \$40.800 \times 4{,}5\% = \$1.836 \text{ ARS} \\
 \text{Margen neto} &= \$2.448 - \$1.836 = \$612 \text{ ARS}
-\end{aligned}
+\end{align*}
 $$
 
 ---

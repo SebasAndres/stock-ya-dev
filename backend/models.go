@@ -11,16 +11,32 @@ const (
 	Other      BusinessType = "otro"
 )
 
+type AssessmentStatus string
+
+const (
+	AssessmentPending  AssessmentStatus = "pending"
+	AssessmentApproved AssessmentStatus = "approved"
+)
+
+type Assessment struct {
+	Photo          string  `json:"photo"`
+	YearsOpen      int     `json:"yearsOpen"`
+	DailyCustomers int     `json:"dailyCustomers"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
+}
+
 type Business struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	CUIT        string       `json:"cuit"`
-	Phone       string       `json:"phone"`
-	Address     string       `json:"address"`
-	Type        BusinessType `json:"type"`
-	CreditLimit int64        `json:"creditLimit"`
-	CreditUsed  int64        `json:"creditUsed"`
-	CreatedAt   time.Time    `json:"createdAt"`
+	ID               string           `json:"id"`
+	Name             string           `json:"name"`
+	CUIT             string           `json:"cuit"`
+	Phone            string           `json:"phone"`
+	Address          string           `json:"address"`
+	Type             BusinessType     `json:"type"`
+	CreditLimit      int64            `json:"creditLimit"`
+	CreditUsed       int64            `json:"creditUsed"`
+	AssessmentStatus AssessmentStatus `json:"assessmentStatus"`
+	CreatedAt        time.Time        `json:"createdAt"`
 }
 
 type Provider struct {
@@ -110,6 +126,14 @@ type CreateBusinessReq struct {
 	Phone   string       `json:"phone"`
 	Address string       `json:"address"`
 	Type    BusinessType `json:"type"`
+}
+
+type SubmitAssessmentReq struct {
+	Photo          string  `json:"photo"`
+	YearsOpen      int     `json:"yearsOpen"`
+	DailyCustomers int     `json:"dailyCustomers"`
+	Latitude       float64 `json:"latitude"`
+	Longitude      float64 `json:"longitude"`
 }
 
 type CreateAdvanceReq struct {

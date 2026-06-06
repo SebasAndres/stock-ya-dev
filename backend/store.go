@@ -37,7 +37,6 @@ func (s *Store) seedCatalog() {
 		{ID: "makro", Name: "Makro", Type: "text", Text: "MAKRO"},
 	}
 	s.products = []Product{
-		{ID: "cc225", Name: "Coca-Cola 2.25L", Price: 2800, Emoji: "🥤", Image: "/assets/coca.webp", Providers: []string{"coto", "diarco"}},
 		{ID: "cc500x6", Name: "Coca-Cola 500ml (x6)", Price: 4200, Emoji: "🧃", Image: "/assets/coca.webp", Providers: []string{"coto", "makro"}},
 		{ID: "fid", Name: "Fideos Marolio 500g", Price: 1100, Emoji: "🍝", Image: "/assets/fideos.webp", Providers: []string{"argenchino", "diarco", "makro"}},
 		{ID: "arr", Name: "Arroz Gallo Oro 1kg", Price: 1400, Emoji: "🍚", Image: "/assets/arroz.webp", Providers: []string{"argenchino", "diarco"}},
@@ -61,19 +60,31 @@ func (s *Store) newID() string {
 func (s *Store) createBusiness(req CreateBusinessReq) *Business {
 	s.mu.Lock()
 	b := &Business{
-		ID:          s.newID(),
-		Name:        req.Name,
-		CUIT:        req.CUIT,
-		Phone:       req.Phone,
-		Address:     req.Address,
-		Type:        req.Type,
-		CreditLimit: 50000,
-		CreditUsed:  0,
-		CreatedAt:   time.Now(),
+		ID:               s.newID(),
+		Name:             req.Name,
+		CUIT:             req.CUIT,
+		Phone:            req.Phone,
+		Address:          req.Address,
+		Type:             req.Type,
+		CreditLimit:      50000,
+		CreditUsed:       0,
+		AssessmentStatus: AssessmentPending,
+		CreatedAt:        time.Now(),
 	}
 	s.businesses[b.ID] = b
 	s.mu.Unlock()
 	return b
+}
+
+func (s *Store) submitAssessment(bizID string, req SubmitAssessmentReq) (*Business, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	b, ok := s.businesses[bizID]
+	if !ok {
+		return nil, fmt.Errorf("business not found")
+	}
+	b.AssessmentStatus = AssessmentApproved
+	return b, nil
 }
 
 func (s *Store) getBusiness(id string) (*Business, bool) {

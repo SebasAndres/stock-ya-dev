@@ -2060,6 +2060,314 @@
       .products-grid { grid-template-columns: repeat(2, 1fr); }
       .mora-bar-label { width: 80px; font-size: 11px; }
     }
+
+    /* ─── VISTA ASSESSMENT ──────────────────────────────────── */
+    #view-assessment {
+      background: var(--neutral-50);
+      min-height: 100vh;
+    }
+
+    #view-assessment.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .assessment-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--neutral-200);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .assessment-logo-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-400));
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .assessment-logo-text {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.4px;
+    }
+
+    .assessment-logo-text span { color: var(--green-500); }
+
+    .assessment-body {
+      flex: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 28px 20px 40px;
+    }
+
+    .assessment-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--green-500);
+      margin-bottom: 6px;
+    }
+
+    .assessment-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .assessment-sub {
+      font-size: 14px;
+      color: var(--neutral-500);
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+
+    /* Progress bar */
+    .assessment-progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .assessment-step-pip {
+      height: 4px;
+      flex: 1;
+      border-radius: 2px;
+      background: var(--neutral-200);
+      transition: background 0.3s ease;
+    }
+
+    .assessment-step-pip.done { background: var(--green-400); }
+    .assessment-step-pip.active { background: var(--green-300); }
+
+    /* Photo upload zone */
+    .photo-zone {
+      border: 2px dashed var(--neutral-300);
+      border-radius: var(--radius-lg);
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+    }
+
+    .photo-zone:hover { border-color: var(--green-400); background: var(--green-50); }
+
+    .photo-zone.has-photo { border-style: solid; border-color: var(--green-400); padding: 0; }
+
+
+    .photo-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      border-radius: calc(var(--radius-lg) - 2px);
+      max-height: 260px;
+    }
+
+    .photo-zone.has-photo .photo-preview { display: block; }
+    .photo-zone.has-photo .photo-placeholder { display: none; }
+
+    .photo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-select-photo {
+      margin-top: 4px;
+      padding: 9px 20px;
+      background: var(--green-500);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: var(--radius-sm);
+      transition: filter var(--transition);
+    }
+
+    .btn-select-photo:hover { filter: brightness(1.08); }
+
+    .btn-cancel-camera {
+      padding: 9px 16px;
+      background: var(--neutral-200);
+      color: var(--neutral-700);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-upload-photo {
+      padding: 9px 16px;
+      background: var(--neutral-100);
+      color: var(--neutral-700);
+      border: 1.5px solid var(--neutral-300);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      transition: background var(--transition);
+    }
+
+    .btn-upload-photo:hover { background: var(--neutral-200); }
+
+    .photo-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--green-50);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .photo-label {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--neutral-700);
+    }
+
+    .photo-hint {
+      font-size: 12.5px;
+      color: var(--neutral-400);
+    }
+
+    /* Location row */
+    .location-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border: 1.5px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      transition: border-color var(--transition);
+    }
+
+    .location-row.detected { border-color: var(--green-400); background: var(--green-50); }
+
+    .location-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .location-text {
+      flex: 1;
+      font-size: 13.5px;
+      color: var(--neutral-600);
+    }
+
+    .location-text strong { display: block; font-size: 14px; color: var(--neutral-900); }
+
+    .btn-detect {
+      padding: 8px 14px;
+      background: var(--green-500);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+      transition: filter var(--transition);
+    }
+
+    .btn-detect:hover { filter: brightness(1.08); }
+    .btn-detect:disabled { background: var(--neutral-300); cursor: not-allowed; }
+
+    /* Done screen */
+    .assessment-done {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    .done-checkmark {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-400));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-green);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.4); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .done-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    .done-sub {
+      font-size: 15px;
+      color: var(--neutral-500);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 340px;
+    }
+
+    /* Shared next button */
+    .assessment-next {
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-400));
+      color: var(--white);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-green);
+      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+      letter-spacing: -0.2px;
+      margin-top: 24px;
+    }
+
+    .assessment-next:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 12px 28px rgba(26,150,69,.38);
+    }
+
+    .assessment-next:disabled {
+      background: var(--neutral-300);
+      box-shadow: none;
+      transform: none;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -2289,6 +2597,157 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA ASSESSMENT: VERIFICACIÓN DE NEGOCIO
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-assessment">
+  <div id="assessment-step-1" class="assessment-step">
+    <header class="assessment-header">
+      <div class="assessment-logo-mark">
+        <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="21" r="2.2" fill="white"/>
+          <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+        </svg>
+      </div>
+      <div class="assessment-logo-text">Stock<span>Ya</span></div>
+    </header>
+    <div class="assessment-body">
+      <div class="assessment-progress">
+        <div class="assessment-step-pip active" id="pip-1"></div>
+        <div class="assessment-step-pip" id="pip-2"></div>
+        <div class="assessment-step-pip" id="pip-3"></div>
+      </div>
+      <div class="assessment-eyebrow">Paso 1 de 2 — Verificación</div>
+      <div class="assessment-title">Foto del administrador</div>
+      <div class="assessment-sub">Subí una selfie o foto del responsable de la cuenta. Nos ayuda a verificar la identidad del titular.</div>
+
+      <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="onPhotoSelected(this)">
+
+      <div class="photo-zone" id="photo-zone">
+        <img class="photo-preview" id="photo-preview" src="" alt="Preview foto">
+
+        <div id="camera-view" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%;padding:16px 0;">
+          <video id="camera-video" autoplay playsinline muted style="width:100%;border-radius:10px;max-height:260px;object-fit:cover;background:#000;"></video>
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="btn-select-photo" onclick="capturePhoto()">📸 Capturar</button>
+            <button type="button" class="btn-cancel-camera" onclick="stopCamera()">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="photo-placeholder-wrap" class="photo-placeholder">
+          <div class="photo-icon">📷</div>
+          <div class="photo-label">Foto del administrador</div>
+          <div class="photo-hint">Selfie o foto del titular de la cuenta</div>
+          <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
+            <button type="button" class="btn-select-photo" onclick="openCamera()">📷 Abrir cámara</button>
+            <button type="button" class="btn-upload-photo" onclick="document.getElementById('photo-input').click()">🖼 Subir imagen</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="assessment-next" id="btn-step1-next" onclick="goToAssessmentStep2()" disabled>
+        Continuar →
+      </button>
+    </div>
+  </div>
+
+  <div id="assessment-step-2" class="assessment-step" style="display:none">
+    <header class="assessment-header">
+      <div class="assessment-logo-mark">
+        <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="21" r="2.2" fill="white"/>
+          <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+        </svg>
+      </div>
+      <div class="assessment-logo-text">Stock<span>Ya</span></div>
+    </header>
+    <div class="assessment-body">
+      <div class="assessment-progress">
+        <div class="assessment-step-pip done"></div>
+        <div class="assessment-step-pip active"></div>
+        <div class="assessment-step-pip"></div>
+      </div>
+      <div class="assessment-eyebrow">Paso 2 de 2 — Perfil del negocio</div>
+      <div class="assessment-title">Contanos un poco más</div>
+      <div class="assessment-sub">Esto nos permite calibrar tu línea de crédito inicial.</div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="form-group">
+          <label class="form-label">¿Cuántos años lleva abierto el negocio?</label>
+          <select class="form-input" id="assessment-years">
+            <option value="">Seleccioná...</option>
+            <option value="0">Menos de 1 año</option>
+            <option value="1">1 año</option>
+            <option value="2">2 años</option>
+            <option value="3">3 años</option>
+            <option value="5">4–5 años</option>
+            <option value="7">6–10 años</option>
+            <option value="11">Más de 10 años</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">¿Cuántos clientes atiende por día aproximadamente?</label>
+          <select class="form-input" id="assessment-customers">
+            <option value="">Seleccioná...</option>
+            <option value="15">Menos de 20</option>
+            <option value="35">20–50</option>
+            <option value="75">50–100</option>
+            <option value="150">100–200</option>
+            <option value="300">Más de 200</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="margin-bottom:8px;">Ubicación del negocio</label>
+          <div class="location-row" id="location-row">
+            <span class="location-icon">📍</span>
+            <div class="location-text">
+              <strong id="location-status">Sin detectar</strong>
+              <span id="location-coords">Tocá el botón para detectar tu ubicación</span>
+            </div>
+            <button class="btn-detect" id="btn-detect-location" onclick="detectLocation()">Detectar</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="assessment-next" id="btn-step2-submit" onclick="submitAssessment()">
+        Verificar mi negocio →
+      </button>
+    </div>
+  </div>
+
+  <div id="assessment-step-3" class="assessment-step" style="display:none">
+    <header class="assessment-header">
+      <div class="assessment-logo-mark">
+        <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="11" cy="21" r="2.2" fill="white"/>
+          <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+        </svg>
+      </div>
+      <div class="assessment-logo-text">Stock<span>Ya</span></div>
+    </header>
+    <div class="assessment-body">
+      <div class="assessment-progress">
+        <div class="assessment-step-pip done"></div>
+        <div class="assessment-step-pip done"></div>
+        <div class="assessment-step-pip done"></div>
+      </div>
+      <div class="assessment-done">
+        <div class="done-checkmark">✓</div>
+        <div class="done-title">¡Negocio verificado!</div>
+        <div class="done-sub">Tu cuenta está activa. Ya podés usar tu línea de crédito para adelantar stock.</div>
+        <button class="assessment-next" onclick="showView('dashboard')" style="max-width:320px;">
+          Ir al inicio →
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2810,6 +3269,7 @@ function productIcon(item) {
 /* ─── View router ─────────────────────────────────────────── */
 const VIEW_MAP = {
   landing:    'view-landing',
+  assessment: 'view-assessment',
   dashboard:  'view-dashboard',
   adelantar:  'view-adelantar',
   mistock:    'view-mistock',
@@ -2840,6 +3300,143 @@ function getDayGreeting() {
   if (h < 12) return 'Buen día';
   if (h < 19) return 'Buenas tardes';
   return 'Buenas noches';
+}
+
+/* ─── Assessment ──────────────────────────────────────────── */
+const assessmentState = {
+  photoBase64: null,
+  latitude: 0,
+  longitude: 0,
+};
+
+let cameraStream = null;
+
+async function openCamera() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+    });
+    document.getElementById('camera-video').srcObject = cameraStream;
+    document.getElementById('camera-view').style.display = 'flex';
+    document.getElementById('photo-placeholder-wrap').style.display = 'none';
+  } catch (err) {
+    alert('No se pudo acceder a la cámara. Usá "Subir imagen" para continuar.');
+  }
+}
+
+function capturePhoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  setPhoto(canvas.toDataURL('image/jpeg', 0.85));
+  stopCamera();
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('camera-video').srcObject = null;
+  document.getElementById('camera-view').style.display = 'none';
+  if (!assessmentState.photoBase64) {
+    document.getElementById('photo-placeholder-wrap').style.display = 'flex';
+  }
+}
+
+function setPhoto(dataUrl) {
+  assessmentState.photoBase64 = dataUrl;
+  document.getElementById('photo-preview').src = dataUrl;
+  document.getElementById('photo-zone').classList.add('has-photo');
+  document.getElementById('photo-placeholder-wrap').style.display = 'none';
+  document.getElementById('btn-step1-next').disabled = false;
+}
+
+function onPhotoSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => setPhoto(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function goToAssessmentStep2() {
+  document.getElementById('assessment-step-1').style.display = 'none';
+  document.getElementById('assessment-step-2').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function detectLocation() {
+  const btn = document.getElementById('btn-detect-location');
+  const statusEl = document.getElementById('location-status');
+  const coordsEl = document.getElementById('location-coords');
+  const row = document.getElementById('location-row');
+
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'No disponible';
+    coordsEl.textContent = 'Tu navegador no soporta geolocalización';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  statusEl.textContent = 'Detectando...';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      assessmentState.latitude  = pos.coords.latitude;
+      assessmentState.longitude = pos.coords.longitude;
+      statusEl.textContent = 'Ubicación detectada';
+      coordsEl.textContent = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+      row.classList.add('detected');
+      btn.textContent = '✓';
+      btn.style.background = 'var(--green-600)';
+    },
+    () => {
+      statusEl.textContent = 'No disponible';
+      coordsEl.textContent = 'Permiso denegado — podés continuar igual';
+      btn.textContent = 'Reintentar';
+      btn.disabled = false;
+    },
+    { timeout: 8000 }
+  );
+}
+
+async function submitAssessment() {
+  const years     = document.getElementById('assessment-years').value;
+  const customers = document.getElementById('assessment-customers').value;
+
+  if (!years || !customers) {
+    alert('Por favor completá las dos preguntas antes de continuar.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-step2-submit');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  try {
+    const biz = await apiFetch(`/api/businesses/${state.biz.id}/assessment`, {
+      method: 'POST',
+      body: JSON.stringify({
+        photo:          assessmentState.photoBase64 || '',
+        yearsOpen:      parseInt(years, 10),
+        dailyCustomers: parseInt(customers, 10),
+        latitude:       assessmentState.latitude,
+        longitude:      assessmentState.longitude,
+      }),
+    });
+    state.biz = { ...state.biz, ...biz };
+    document.getElementById('assessment-step-2').style.display = 'none';
+    document.getElementById('assessment-step-3').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  } catch (err) {
+    alert('Error al verificar: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Verificar mi negocio →';
+  }
 }
 
 /* ─── API helpers ─────────────────────────────────────────── */
@@ -2880,7 +3477,11 @@ async function handleRegister(e) {
     });
     state.biz = { ...biz };
     updateBizUI(biz.name);
-    showView('dashboard');
+    if (biz.assessmentStatus === 'approved') {
+      showView('dashboard');
+    } else {
+      showView('assessment');
+    }
   } catch (err) {
     alert('Error al registrar: ' + err.message);
   } finally {

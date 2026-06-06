@@ -29,6 +29,7 @@ func main() {
 	mux.HandleFunc("GET /api/businesses/{id}/dashboard", h.getDashboard)
 	mux.HandleFunc("GET /api/businesses/{id}/advances", h.listAdvances)
 	mux.HandleFunc("POST /api/businesses/{id}/advances", h.createAdvance)
+	mux.HandleFunc("POST /api/businesses/{id}/assessment", h.submitAssessment)
 
 	mux.HandleFunc("GET /api/products", h.listProducts)
 	mux.HandleFunc("GET /api/providers", h.listProviders)
