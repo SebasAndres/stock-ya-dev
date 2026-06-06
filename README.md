@@ -1,5 +1,7 @@
 # StockYa
 
+<img src="demo.png">
+
 Plataforma B2B de crédito embebido para almacenes y kioscos argentinos. Los negocios piden adelantos de stock contra una línea de crédito y pagan a 30 días — sin ir al banco, sin garantías externas.
 
 Inspirado en el modelo de *warehouse receipt financing* (los certificados de depósito de soja en silos argentinos), pero para mercadería de consumo masivo.
