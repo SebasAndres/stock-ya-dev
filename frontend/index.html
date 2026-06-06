@@ -2603,8 +2603,8 @@
                   <option value="" disabled selected>Seleccioná una opción</option>
                   <option value="almacen">Almacén</option>
                   <option value="kiosco">Kiosco</option>
-                  <option value="verduleria">Verdulería / Almacén Natural</option>
-                  <option value="otro">Otro</option>
+                  <option value="verduleria" disabled>Verdulería — próximamente</option>
+                  <option value="otro" disabled>Otro — próximamente</option>
                 </select>
               </div>
             </div>
@@ -3305,7 +3305,7 @@ let PRODUCTS = [
   { id: 'arr',     name: 'Arroz Gallo Oro 1kg',  price: 1400, emoji: '🍚', image: 'assets/arroz.webp',       providers: ['argenchino', 'diarco'] },
   { id: 'cas',     name: 'Casancream',        price: 3600, emoji: '🍪', image: 'assets/casancream.webp',  providers: ['argenchino', 'coto'] },
   { id: 'ace',     name: 'Aceite Natura 1.5L',   price: 2200, emoji: '🫒', image: 'assets/aceite.webp',      providers: ['coto', 'makro', 'diarco'] },
-  { id: 'yer',     name: 'Yerba Playadito 500g', price: 1800, emoji: '🧉', image: 'assets/yerba.webp',       providers: ['argenchino', 'diarco'] },
+  { id: 'yer',     name: 'Yerba Playadito 500g', price: 1800, emoji: '🧉', image: 'assets/yerba.webp',                              providers: ['argenchino', 'diarco'] },
 ];
 
 let SUCURSALES = [
@@ -3598,11 +3598,10 @@ async function handleRegister(e) {
     const biz = await apiFetch('/api/businesses', {
       method: 'POST',
       body: JSON.stringify({
-        name:    document.getElementById('biz-name').value.trim(),
-        cuit:    document.getElementById('biz-cuit').value.trim(),
-        phone:   document.getElementById('biz-phone').value.trim(),
-        address: document.getElementById('biz-address').value.trim(),
-        type:    document.getElementById('biz-type').value,
+        name:  document.getElementById('biz-name').value.trim(),
+        cuit:  document.getElementById('biz-cuit').value.trim(),
+        phone: document.getElementById('biz-phone').value.trim(),
+        type:  document.getElementById('biz-type').value,
       }),
     });
     state.biz = { ...biz };
