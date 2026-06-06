@@ -136,7 +136,7 @@
       ]
       #v(14pt)
       #text(size: 13pt, fill: slate)[
-        *El comercio chico* —el almacén, el kiosco— se autofinancia o vive del
+        *El comercio chico* (almacenes, kioscos) se autofinancia o vive del
         fiado de su proveedor. El sistema bancario es demasiado chico y demasiado
         exigente para atenderlo.
       ]
@@ -170,25 +170,10 @@
       #barrow("Suecia", 128, 128)
     ],
     [
-      #statbig("43%", "del empleo es informal — 69,5% en los comercios de hasta 5 personas")
+      #statbig("43%", "del empleo es informal (69,5% en los comercios de hasta 5 personas)")
       #v(20pt)
       #statbig("18,4 M", "personas acceden a algún crédito formal, aunque el 69% ya tiene cuenta", color: teal)
     ],
-  )
-]
-
-// =============================================================
-//  SLIDE 4 — Insight: el proveedor es el banco
-// =============================================================
-#slide(title: "El proveedor ya es el banco del almacén")[
-  #v(2pt)
-  #stack(spacing: 16pt,
-    step(1, "Los pagos ya están resueltos",
-      "Casi todos tienen cuenta y QR. Lo que falta no es bancarización: es crédito."),
-    step(2, "El proveedor conoce al comercio mejor que el banco",
-      "La pyme se financia con capital propio y la red de proveedores. El mayorista sabe cuánto y con qué puntualidad le paga cada almacén."),
-    step(3, "Ese dato ya existe y se está digitalizando",
-      "El canal mayorista vende cada vez más online: el historial de compra y pago es estructurado y verificable."),
   )
 ]
 
@@ -212,7 +197,35 @@
 ]
 
 // =============================================================
-//  SLIDE 6 — Motor de scoring
+//  SLIDE 6 — Por qué el crédito de reposición mueve la aguja
+// =============================================================
+#slide(
+  title: "Financiar la reposición mueve la aguja",
+  subtitle: "El comercio ya se financia así, el retorno lo justifica y los análogos escalan.",
+)[
+  #let stat(num, label, src, color: navy) = card([], h: 2.0in)[
+    #align(center)[
+      #text(font: serif, weight: "bold", size: 27pt, fill: color)[#num]
+      #v(6pt)
+      #text(size: 10.5pt, fill: slate)[#label]
+      #v(5pt)
+      #text(size: 8pt, style: "italic", fill: gray)[#src]
+    ]
+  ]
+  #grid(columns: (1fr, 1fr, 1fr), gutter: 16pt,
+    stat("88%", "de las empresas en LatAm vende a plazo (crédito de proveedor), pero el comercio chico paga al contado y queda afuera.", "Coface, 2024"),
+    stat("~60% anual", "de retorno real al capital en microempresas: supera con holgura la tasa de un crédito de reposición.", "de Mel, McKenzie y Woodruff, QJE 2008", color: teal),
+    stat("6–8%", "de quiebres de stock en comercios independientes (el doble que las cadenas); ~40% es venta perdida para siempre.", "Gruen y Corsten; Aastrup-Kotzab", color: amber),
+  )
+  #v(12pt)
+  #card([], dark: true)[
+    #text(font: serif, weight: "bold", size: 12.5pt, fill: teal)[Ya funciona a escala: ]
+    #text(size: 11.5pt, fill: ice)[Tienda Pago (Perú/México) y Jaza Duka (Unilever + Mastercard, Kenya) dan crédito corto atado a la compra de inventario → *+15–25% en ventas* del comercio, usado 2,8–3,3 veces por mes.]
+  ]
+]
+
+// =============================================================
+//  SLIDE 7 — Motor de scoring
 // =============================================================
 #slide(
   title: "El motor de scoring: nuestro verdadero diferencial",
@@ -221,7 +234,7 @@
   #grid(columns: (1fr, 1.25fr), gutter: 30pt, align: (horizon, top),
     // --- grafo ---
     card([], dark: true, h: 2.9in)[
-      #text(font: serif, weight: "bold", size: 12.5pt, fill: white)[Grafo de comunidades — group lending]
+      #text(font: serif, weight: "bold", size: 12.5pt, fill: white)[Grafo de comunidades (group lending)]
       #v(6pt)
       #box(width: 100%, height: 1.35in)[
         #place(left + top, dx: 30pt,  dy: 8pt,  node(green))
@@ -250,7 +263,7 @@
       #text(size: 11.5pt, fill: gray, weight: "bold")[Tres fuentes alimentan el score:]
       #v(10pt)
       #stack(spacing: 12pt,
-        step(1, "Grafo de comunidades", "Prestamos a grupos. Quién paga y quién conoce a quién arma la red — colateral social."),
+        step(1, "Grafo de comunidades", "Prestamos a grupos. Quién paga y quién conoce a quién arma la red (colateral social."),
         step(2, "Datos del proveedor", "Compra y pago verificados, en tiempo real."),
         step(3, "Aporte voluntario del comercio", "Comparte sus datos para subir su línea, como en Mercado Pago."),
       )
@@ -259,7 +272,7 @@
 ]
 
 // =============================================================
-//  SLIDE 7 — Onboarding
+//  SLIDE 8 — Onboarding
 // =============================================================
 #slide(title: "Onboarding")[
   #v(4pt)
@@ -272,11 +285,11 @@
 ]
 
 // =============================================================
-//  SLIDE 8 — Diferencial competitivo
+//  SLIDE 9 — Diferencial competitivo
 // =============================================================
 #slide(
   title: "Vemos a quien nadie más ve",
-  subtitle: "No competimos en pagos ni PSP — solo en crédito para el comercio no bancarizado.",
+  subtitle: "No competimos en pagos ni PSP, solo en crédito para el comercio no bancarizado.",
 )[
   #grid(columns: (1fr, 1fr), gutter: 22pt,
     card("El banco y Mercado Pago", h: 3.2in)[
@@ -293,7 +306,7 @@
 ]
 
 // =============================================================
-//  SLIDE 9 — Más datos + crédito que no se desvía (mora)
+//  SLIDE 10 — Más datos + crédito que no se desvía (mora)
 // =============================================================
 #slide(
   title: "Más datos, y crédito que no se desvía",
@@ -306,7 +319,7 @@
       - Cada préstamo agranda el grafo: el modelo mejora con cada operación (flywheel).
     ],
     card("Crédito productivo, menos mora", dark: true, h: 2.95in)[
-      - Prestamos para reponer stock — y en fase 2, en mercadería. El crédito entra al negocio, no a la caja.
+      - Prestamos para reponer stock (en fase 2, en mercadería). El crédito entra al negocio, no a la caja.
       - El efectivo se desvía a consumo; el capital en especie se queda y genera la venta que repaga.
       - El destino es verificable: financiamos la góndola, no un gasto que no podemos ver.
     ],
@@ -318,7 +331,7 @@
 ]
 
 // =============================================================
-//  SLIDE 10 — Evidencia de mora
+//  SLIDE 11 — Evidencia de mora
 // =============================================================
 #slide(
   title: "La mora es del instrumento, no del segmento",
@@ -326,7 +339,7 @@
 )[
   #grid(columns: (1fr, 1fr), gutter: 22pt,
     card("El no bancarizado hoy paga mal")[
-      - En Argentina, los deudores *sin banco* tienen *36,1%* de irregularidad; las entidades no financieras, *21–44%* de mora — frente a *~1,6%* de los bancos.
+      - En Argentina, los deudores *sin banco* tienen *36,1%* de irregularidad; las entidades no financieras, *21–44%* de mora, frente a *~1,6%* de los bancos.
       - No es la persona, es el instrumento: hoy reciben *efectivo caro y sin control de destino*.
     ],
     card("Cambiá el instrumento, baja la mora", dark: true)[
@@ -341,7 +354,7 @@
 ]
 
 // =============================================================
-//  SLIDE 11 — Modelo de negocio
+//  SLIDE 12 — Modelo de negocio
 // =============================================================
 #slide(title: "Cómo ganamos plata")[
   #grid(columns: (1fr, 1fr), gutter: 24pt, align: (horizon, top),
@@ -363,7 +376,7 @@
       #text(size: 11.5pt, fill: gray, weight: "bold")[Capital en capas (blended)]
       #v(10pt)
       #stack(spacing: 10pt,
-        card("Tramo senior — inversor privado")[retorno ajustado por riesgo],
+        card("Tramo senior (inversor privado)")[retorno ajustado por riesgo],
         card("Primera pérdida + asistencia técnica")[organismo internacional (BID / Banco Mundial)],
       )
       #v(8pt)
@@ -375,7 +388,7 @@
 ]
 
 // =============================================================
-//  SLIDE 12 — Go to market
+//  SLIDE 13 — Go to market
 // =============================================================
 #slide(title: "Por dónde entramos")[
   #v(4pt)
@@ -390,11 +403,11 @@
 ]
 
 // =============================================================
-//  SLIDE 13 — Competencia
+//  SLIDE 14 — Competencia
 // =============================================================
 #slide(
   title: "El panorama competitivo",
-  subtitle: "Nuestra cuña: el comercio chico, informal y de efectivo que los grandes subatienden — y la agregación de varios proveedores que un solo CPG no hace.",
+  subtitle: "Nuestra cuña: el comercio chico, informal y de efectivo que los grandes subatienden, y la agregación de varios proveedores que un solo CPG no hace.",
 )[
   #grid(columns: (1fr, 1fr, 1fr), gutter: 16pt,
     card("Mercado Pago / Mercado Crédito", h: 2.2in)[Presta, pero solo a quien ya genera huella digital propia.],
@@ -404,22 +417,7 @@
 ]
 
 // =============================================================
-//  SLIDE 14 — Regulación
-// =============================================================
-#slide(title: "Jugamos dentro de la regla — y la usamos a favor")[
-  #v(4pt)
-  #stack(spacing: 16pt,
-    step(1, "Nos inscribimos como Proveedor No Financiero de Crédito (PNFC)",
-      "Podemos prestar sin ser un banco. Es el carril legal donde hoy pasa la acción del crédito."),
-    step(2, "Programa de prevención (UIF) desde el día uno",
-      "Somos sujeto obligado: KYC y monitoreo no son opcionales, son parte del producto."),
-    step(3, "La formalización es nuestra propuesta de valor",
-      "Tomamos un comercio 100% efectivo y lo subimos a un riel trazable. Eso es justo lo que el fondeador compra."),
-  )
-]
-
-// =============================================================
-//  SLIDE 15 — Fundeable
+//  SLIDE 16 — Fundeable
 // =============================================================
 #slide(title: "Por qué un organismo internacional financia esto")[
   #let metric(t) = card([], dark: true, h: 0.75in)[
@@ -441,7 +439,7 @@
 ]
 
 // =============================================================
-//  SLIDE 16 — Riesgos
+//  SLIDE 17 — Riesgos
 // =============================================================
 #slide(title: "Lo que puede salir mal (y cómo lo manejamos)")[
   #let riskrow(problem, fix) = grid(
@@ -455,13 +453,13 @@
     riskrow("Dependencia del distribuidor", "Varias distribuidoras medianas, nunca una sola."),
     riskrow("Visión parcial del comercio", "Arrancamos por el proveedor dominante y agregamos."),
     riskrow("Sector en crisis, mora alta", "Préstamo-sonda chico + crédito graduado."),
-    riskrow("Sobreendeudamiento — Andhra Pradesh 2010 (repago 95% → 1%)", "Límite de exposición por grafo, crédito graduado y cobranza blanda; sin metas de colocación agresivas."),
+    riskrow("Sobreendeudamiento: Andhra Pradesh 2010 (repago 95% → 1%)", "Límite de exposición por grafo, crédito graduado y cobranza blanda; sin metas de colocación agresivas."),
     riskrow("Macro e inflación", "Plazos cortos con repricing rápido."),
   )
 ]
 
 // =============================================================
-//  SLIDE 17 — Roadmap & ask
+//  SLIDE 18 — Roadmap & ask
 // =============================================================
 #slide(title: "Hacia dónde vamos")[
   #grid(columns: (1fr, 1fr, 1fr), gutter: 16pt,
