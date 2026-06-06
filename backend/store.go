@@ -37,12 +37,12 @@ func (s *Store) seedCatalog() {
 		{ID: "makro", Name: "Makro", Type: "text", Text: "MAKRO"},
 	}
 	s.products = []Product{
-		{ID: "cc225", Name: "Coca-Cola 2.25L", Price: 2800, Emoji: "🥤", Providers: []string{"coto", "diarco"}},
-		{ID: "cc500x6", Name: "Coca-Cola 500ml (x6)", Price: 4200, Emoji: "🧃", Providers: []string{"coto", "makro"}},
-		{ID: "fid", Name: "Fideos Marolio 500g", Price: 1100, Emoji: "🍝", Providers: []string{"argenchino", "diarco", "makro"}},
-		{ID: "arr", Name: "Arroz Gallo Oro 1kg", Price: 1400, Emoji: "🍚", Providers: []string{"argenchino", "diarco"}},
-		{ID: "cas", Name: "Casancream x36", Price: 3600, Emoji: "🍪", Providers: []string{"argenchino", "coto"}},
-		{ID: "ace", Name: "Aceite Natura 1.5L", Price: 2200, Emoji: "🫒", Providers: []string{"coto", "makro", "diarco"}},
+		{ID: "cc225", Name: "Coca-Cola 2.25L", Price: 2800, Emoji: "🥤", Image: "/assets/coca.webp", Providers: []string{"coto", "diarco"}},
+		{ID: "cc500x6", Name: "Coca-Cola 500ml (x6)", Price: 4200, Emoji: "🧃", Image: "/assets/coca.webp", Providers: []string{"coto", "makro"}},
+		{ID: "fid", Name: "Fideos Marolio 500g", Price: 1100, Emoji: "🍝", Image: "/assets/fideos.webp", Providers: []string{"argenchino", "diarco", "makro"}},
+		{ID: "arr", Name: "Arroz Gallo Oro 1kg", Price: 1400, Emoji: "🍚", Image: "/assets/arroz.webp", Providers: []string{"argenchino", "diarco"}},
+		{ID: "cas", Name: "Casancream x36", Price: 3600, Emoji: "🍪", Image: "/assets/casancream.webp", Providers: []string{"argenchino", "coto"}},
+		{ID: "ace", Name: "Aceite Natura 1.5L", Price: 2200, Emoji: "🫒", Image: "/assets/aceite.webp", Providers: []string{"coto", "makro", "diarco"}},
 		{ID: "yer", Name: "Yerba Playadito 500g", Price: 1800, Emoji: "🧉", Providers: []string{"argenchino", "diarco"}},
 		{ID: "azu", Name: "Azúcar Ledesma 1kg", Price: 950, Emoji: "🍬", Providers: []string{"coto", "argenchino", "makro"}},
 	}
@@ -173,6 +173,7 @@ func (s *Store) buildItems(cart map[string]int) ([]AdvanceItem, int64, error) {
 			ProductID: p.ID,
 			Name:      p.Name,
 			Emoji:     p.Emoji,
+			Image:     p.Image,
 			Qty:       qty,
 			Price:     p.Price,
 		})

@@ -37,6 +37,7 @@ type Product struct {
 	Name      string   `json:"name"`
 	Price     int64    `json:"price"`
 	Emoji     string   `json:"emoji"`
+	Image     string   `json:"image,omitempty"`
 	Providers []string `json:"providers"`
 }
 
@@ -67,6 +68,7 @@ type AdvanceItem struct {
 	ProductID string `json:"id"`
 	Name      string `json:"name"`
 	Emoji     string `json:"emoji"`
+	Image     string `json:"image,omitempty"`
 	Qty       int    `json:"qty"`
 	Price     int64  `json:"price"`
 }

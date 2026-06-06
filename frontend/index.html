@@ -1077,11 +1077,6 @@
       background: var(--green-50);
     }
 
-    .product-emoji {
-      font-size: 32px;
-      line-height: 1;
-    }
-
     .product-name {
       font-size: 13px;
       font-weight: 600;
@@ -1193,8 +1188,6 @@
       align-items: center;
       gap: 10px;
     }
-
-    .summary-item-emoji { font-size: 22px; }
 
     .summary-item-name {
       font-size: 14px;
@@ -1544,7 +1537,6 @@
     }
 
     .deposito-item-left { display: flex; align-items: center; gap: 12px; }
-    .deposito-item-emoji { font-size: 28px; }
 
     .deposito-item-name { font-size: 15px; font-weight: 700; color: var(--neutral-900); margin-bottom: 2px; }
     .deposito-item-meta { font-size: 12px; color: var(--neutral-400); }
@@ -1747,8 +1739,6 @@
       gap: 14px;
       align-items: start;
     }
-
-    .stock-item-emoji { font-size: 32px; }
 
     .stock-item-name {
       font-size: 15px;
@@ -1964,6 +1954,83 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--neutral-200); border-radius: 999px; }
+
+    /* Product icon containers */
+    .product-emoji {
+      font-size: 36px;
+      width: 100%;
+      height: 80px;
+      background: var(--neutral-50);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .product-emoji img {
+      display: block;
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+    }
+
+    .summary-item-emoji {
+      font-size: 22px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--neutral-50);
+      border-radius: 6px;
+    }
+    .summary-item-emoji img {
+      display: block;
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .stock-item-emoji {
+      font-size: 32px;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--neutral-50);
+      border-radius: 8px;
+    }
+    .stock-item-emoji img {
+      display: block;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+    }
+
+    .deposito-item-emoji {
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--neutral-50);
+      border-radius: 8px;
+    }
+    .deposito-item-emoji img {
+      display: block;
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
 
     /* Page-specific page-back button */
     .page-back {
@@ -2715,14 +2782,14 @@ let PROVIDERS = [
 ];
 
 let PRODUCTS = [
-  { id: 'cc225',   name: 'Coca-Cola 2.25L',      price: 2800, emoji: '🥤', providers: ['coto', 'diarco'] },
-  { id: 'cc500x6', name: 'Coca-Cola 500ml (x6)', price: 4200, emoji: '🧃', providers: ['coto', 'makro'] },
-  { id: 'fid',     name: 'Fideos Marolio 500g',  price: 1100, emoji: '🍝', providers: ['argenchino', 'diarco', 'makro'] },
-  { id: 'arr',     name: 'Arroz Gallo Oro 1kg',  price: 1400, emoji: '🍚', providers: ['argenchino', 'diarco'] },
-  { id: 'cas',     name: 'Casancream x36',        price: 3600, emoji: '🍪', providers: ['argenchino', 'coto'] },
-  { id: 'ace',     name: 'Aceite Natura 1.5L',   price: 2200, emoji: '🫒', providers: ['coto', 'makro', 'diarco'] },
-  { id: 'yer',     name: 'Yerba Playadito 500g', price: 1800, emoji: '🧉', providers: ['argenchino', 'diarco'] },
-  { id: 'azu',     name: 'Azúcar Ledesma 1kg',   price:  950, emoji: '🍬', providers: ['coto', 'argenchino', 'makro'] },
+  { id: 'cc225',   name: 'Coca-Cola 2.25L',      price: 2800, emoji: '🥤', image: 'assets/coca.webp',        providers: ['coto', 'diarco'] },
+  { id: 'cc500x6', name: 'Coca-Cola 500ml (x6)', price: 4200, emoji: '🧃', image: 'assets/coca.webp',        providers: ['coto', 'makro'] },
+  { id: 'fid',     name: 'Fideos Marolio 500g',  price: 1100, emoji: '🍝', image: 'assets/fideos.webp',      providers: ['argenchino', 'diarco', 'makro'] },
+  { id: 'arr',     name: 'Arroz Gallo Oro 1kg',  price: 1400, emoji: '🍚', image: 'assets/arroz.webp',       providers: ['argenchino', 'diarco'] },
+  { id: 'cas',     name: 'Casancream',        price: 3600, emoji: '🍪', image: 'assets/casancream.webp',  providers: ['argenchino', 'coto'] },
+  { id: 'ace',     name: 'Aceite Natura 1.5L',   price: 2200, emoji: '🫒', image: 'assets/aceite.webp',      providers: ['coto', 'makro', 'diarco'] },
+  { id: 'yer',     name: 'Yerba Playadito 500g', price: 1800, emoji: '🧉',                                   providers: ['argenchino', 'diarco'] },
+  { id: 'azu',     name: 'Azúcar Ledesma 1kg',   price:  950, emoji: '🍬',                                   providers: ['coto', 'argenchino', 'makro'] },
 ];
 
 let SUCURSALES = [
@@ -2731,6 +2798,14 @@ let SUCURSALES = [
   { id: 'belgrano', name: 'Sucursal Belgrano',  address: 'Cabildo 2500, Belgrano',     emoji: '🏘️' },
   { id: 'flores',   name: 'Sucursal Flores',    address: 'Av. Rivadavia 6000, Flores', emoji: '🌸' },
 ];
+
+/* ─── Product icon helper ─────────────────────────────────── */
+function productIcon(item) {
+  const src = item.image || item.img;
+  const emoji = item.emoji || '';
+  if (src) return `<img src="${src}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${emoji}'))">`;
+  return emoji;
+}
 
 /* ─── View router ─────────────────────────────────────────── */
 const VIEW_MAP = {
@@ -2865,7 +2940,7 @@ function renderDashboardPreview() {
   const recent = state.stockItems.slice(-2).reverse();
   preview.innerHTML = recent.map(entry => `
     <div class="stock-item" style="margin-bottom:10px">
-      <div class="stock-item-emoji">${entry.items[0].emoji}</div>
+      <div class="stock-item-emoji">${productIcon(entry.items[0])}</div>
       <div>
         <div class="stock-item-name">${entry.items.length === 1 ? entry.items[0].name : entry.items.length + ' productos'}</div>
         <div class="stock-item-meta">
@@ -2899,7 +2974,8 @@ function renderProviderBar() {
 
     let logoInner;
     if (pv.type === 'img') {
-      logoInner = `<img src="${pv.src}" alt="${pv.name}" loading="lazy">`;
+      const shortName = pv.name.split(' ')[0];
+      logoInner = `<img src="${pv.src}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\\'provider-logo-text\\'>${shortName}</div>'">`;
     } else if (pv.type === 'icon') {
       logoInner = `<svg width="22" height="20" viewBox="0 0 26 24" fill="none"><path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="21" r="2.2" fill="white"/><circle cx="19.5" cy="21" r="2.2" fill="white"/><path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     } else {
@@ -2940,7 +3016,7 @@ function renderProducts() {
     const qty = state.cart[p.id] || 0;
     return `
       <div class="product-card ${qty > 0 ? 'selected' : ''}" id="pcard-${p.id}">
-        <div class="product-emoji">${p.emoji}</div>
+        <div class="product-emoji">${productIcon(p)}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-price">$${p.price.toLocaleString('es-AR')}</div>
         <div class="product-controls">
@@ -2968,7 +3044,7 @@ function changeQty(productId, delta) {
   if (card) {
     card.className = 'product-card ' + (qty > 0 ? 'selected' : '');
     card.innerHTML = `
-      <div class="product-emoji">${p.emoji}</div>
+      <div class="product-emoji">${productIcon(p)}</div>
       <div class="product-name">${p.name}</div>
       <div class="product-price">$${p.price.toLocaleString('es-AR')}</div>
       <div class="product-controls">
@@ -3125,7 +3201,7 @@ function renderSummary() {
     return `
       <div class="summary-item">
         <div class="summary-item-left">
-          <div class="summary-item-emoji">${p.emoji}</div>
+          <div class="summary-item-emoji">${productIcon(p)}</div>
           <div>
             <div class="summary-item-name">${p.name}</div>
             <div class="summary-item-qty">x${qty} · $${p.price.toLocaleString('es-AR')} c/u</div>
@@ -3244,7 +3320,7 @@ function renderMiStockUI() {
     const totalQty = entry.items.reduce((s, i) => s + i.qty, 0);
     return `
       <div class="stock-item">
-        <div class="stock-item-emoji">${entry.items[0].emoji}</div>
+        <div class="stock-item-emoji">${productIcon(entry.items[0])}</div>
         <div>
           <div class="stock-item-name">${productSummary}</div>
           <div class="stock-item-meta">
@@ -3414,7 +3490,7 @@ function renderDepositoUI() {
       <div class="deposito-item">
         <div class="deposito-item-header">
           <div class="deposito-item-left">
-            <div class="deposito-item-emoji">${entry.items[0].emoji}</div>
+            <div class="deposito-item-emoji">${productIcon(entry.items[0])}</div>
             <div>
               <div class="deposito-item-name">${summary}</div>
               <div class="deposito-item-meta">📅 Ingresó ${entry.adelantoDate} · 📦 ${totalQty} unidades</div>
