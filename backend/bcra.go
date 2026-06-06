@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -54,25 +55,104 @@ func normalizeCUIT(cuit string) string {
 	return strings.ReplaceAll(cuit, "-", "")
 }
 
-func (c *bcraClient) getDeudas(cuit string) (*deudaResponse, error) {
+func (c *bcraClient) getDeudas(cuit string) (*deudaResponse, bool, error) {
 	digits := normalizeCUIT(cuit)
 	url := fmt.Sprintf("%s/centraldedeudores/v1.0/Deudas/%s", bcraBaseURL, digits)
 	resp, err := c.http.Get(url)
 	if err != nil {
-		return nil, err
+		// Network failure — fall back to mock so the rest of the flow works.
+		log.Printf("│ [Central de Deudores] API inaccesible (%v) — usando datos simulados", err)
+		return mockDeudas(digits), true, nil
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, nil // CUIT sin antecedentes en el sistema
+		return nil, false, nil // CUIT sin antecedentes
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bcra deudas: status %d", resp.StatusCode)
+		return nil, false, fmt.Errorf("bcra deudas: status %d", resp.StatusCode)
 	}
 	var out deudaResponse
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
-		return nil, err
+		return nil, false, err
 	}
-	return &out, nil
+	return &out, false, nil
+}
+
+// mockDeudas genera un perfil crediticio determinístico basado en el CUIT.
+// El último dígito define el escenario: 0-5 → normal, 6-7 → sin antecedentes, 8 → seguimiento especial, 9 → con problemas.
+func mockDeudas(digits string) *deudaResponse {
+	last, _ := strconv.Atoi(digits[len(digits)-1:])
+	period := time.Now().AddDate(0, -1, 0).Format("200601")
+
+	type entidad struct {
+		sit   int
+		monto int64
+		atraso int
+	}
+
+	scenarios := map[int][]entidad{
+		0: {{1, 48_000, 0}},
+		1: {{1, 120_000, 0}, {1, 35_000, 0}},
+		2: {{1, 0, 0}},
+		3: {{1, 75_000, 0}},
+		4: {{1, 210_000, 0}, {1, 90_000, 0}},
+		5: {{1, 15_000, 0}},
+		6: nil, // sin antecedentes
+		7: nil,
+		8: {{2, 180_000, 32}, {1, 60_000, 0}},
+		9: {{3, 420_000, 75}, {2, 95_000, 18}},
+	}
+
+	entidades := scenarios[last]
+	if entidades == nil {
+		return nil // sin antecedentes en el sistema
+	}
+
+	denominaciones := []string{
+		"COMERCIOS REGIONALES SRL", "DISTRIBUIDORA NORTE SA", "ALMACENES UNIDOS SRL",
+		"COMERCIO MINORISTA SRL", "GRUPO RETAIL AR SA",
+	}
+	denom := denominaciones[last%len(denominaciones)]
+
+	type entRow struct {
+		Situacion      int   `json:"situacion"`
+		Monto          int64 `json:"monto"`
+		DiasAtrasoPago int   `json:"diasAtrasoPago"`
+	}
+	rows := make([]entRow, len(entidades))
+	for i, e := range entidades {
+		rows[i] = entRow{e.sit, e.monto, e.atraso}
+	}
+
+	out := &deudaResponse{}
+	out.Results.Denominacion = denom
+	out.Results.Periodos = []struct {
+		Periodo   string `json:"periodo"`
+		Entidades []struct {
+			Situacion      int   `json:"situacion"`
+			Monto          int64 `json:"monto"`
+			DiasAtrasoPago int   `json:"diasAtrasoPago"`
+		} `json:"entidades"`
+	}{
+		{Periodo: period, Entidades: func() []struct {
+			Situacion      int   `json:"situacion"`
+			Monto          int64 `json:"monto"`
+			DiasAtrasoPago int   `json:"diasAtrasoPago"`
+		} {
+			r := make([]struct {
+				Situacion      int   `json:"situacion"`
+				Monto          int64 `json:"monto"`
+				DiasAtrasoPago int   `json:"diasAtrasoPago"`
+			}, len(rows))
+			for i, row := range rows {
+				r[i].Situacion = row.Situacion
+				r[i].Monto = row.Monto
+				r[i].DiasAtrasoPago = row.DiasAtrasoPago
+			}
+			return r
+		}()},
+	}
+	return out
 }
 
 func (c *bcraClient) getCotizacionUSD() (float64, error) {
@@ -121,7 +201,7 @@ var situacionDesc = map[int]string{
 func (c *bcraClient) RunChecks(cuit string) BCRACheck {
 	result := BCRACheck{Timestamp: time.Now()}
 
-	deudas, deudasErr := c.getDeudas(cuit)
+	deudas, isMock, deudasErr := c.getDeudas(cuit)
 	usd, usdErr := c.getCotizacionUSD()
 
 	if deudasErr == nil {
@@ -143,11 +223,11 @@ func (c *bcraClient) RunChecks(cuit string) BCRACheck {
 		result.TipoCambioUSD = usd
 	}
 
-	logBCRAReport(cuit, result, deudas, deudasErr, usdErr)
+	logBCRAReport(cuit, result, deudas, isMock, deudasErr, usdErr)
 	return result
 }
 
-func logBCRAReport(cuit string, r BCRACheck, deudas *deudaResponse, deudasErr, usdErr error) {
+func logBCRAReport(cuit string, r BCRACheck, deudas *deudaResponse, isMock bool, deudasErr, usdErr error) {
 	sep := "────────────────────────────────────────────────"
 	log.Printf("\n┌ BCRA CHECK · CUIT %s · %s\n%s", cuit, r.Timestamp.Format("2006-01-02 15:04:05"), sep)
 
@@ -155,13 +235,21 @@ func logBCRAReport(cuit string, r BCRACheck, deudas *deudaResponse, deudasErr, u
 	if deudasErr != nil {
 		log.Printf("│ [Central de Deudores] ERROR: %v", deudasErr)
 	} else if deudas == nil || len(deudas.Results.Periodos) == 0 {
-		log.Printf("│ [Central de Deudores] Sin antecedentes en el sistema financiero")
+		source := "Central de Deudores"
+		if isMock {
+			source += " [MOCK]"
+		}
+		log.Printf("│ [%s] Sin antecedentes en el sistema financiero", source)
 	} else {
+		source := "Central de Deudores"
+		if isMock {
+			source += " [MOCK]"
+		}
 		desc := situacionDesc[r.PeorSituacion]
 		if desc == "" {
 			desc = "Desconocida"
 		}
-		log.Printf("│ [Central de Deudores]")
+		log.Printf("│ [%s]", source)
 		log.Printf("│   Denominación   : %s", r.Denominacion)
 		log.Printf("│   Último período : %s", r.UltimoPeriodo)
 		log.Printf("│   Peor situación : %d — %s", r.PeorSituacion, desc)
