@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockYa — Adelantá tu stock hoy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────────── */
+    :root {
+      --green-900: #0a2e1a;
+      --green-800: #0d3d22;
+      --green-700: #115c2e;
+      --green-600: #157a3a;
+      --green-500: #1a9645;
+      --green-400: #22b854;
+      --green-300: #4dd67a;
+      --green-100: #d6f5e3;
+      --green-50:  #edfaf3;
+
+      --amber-500: #f59e0b;
+      --amber-400: #fbbf24;
+      --amber-300: #fcd34d;
+      --amber-100: #fef3c7;
+
+      --red-500: #ef4444;
+      --red-100: #fee2e2;
+
+      --neutral-900: #111418;
+      --neutral-800: #1c2128;
+      --neutral-700: #2d3748;
+      --neutral-600: #4a5568;
+      --neutral-400: #9aa5b1;
+      --neutral-200: #e8ecf0;
+      --neutral-100: #f2f5f7;
+      --neutral-50:  #f8fafb;
+      --white:       #ffffff;
+
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+
+      --radius-sm:  6px;
+      --radius-md:  12px;
+      --radius-lg:  20px;
+      --radius-xl:  32px;
+      --radius-full: 9999px;
+
+      --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:  0 4px 12px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+      --shadow-lg:  0 12px 32px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.08);
+      --shadow-green: 0 8px 24px rgba(26,150,69,.28);
+      --shadow-card:  0 2px 8px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--neutral-800);
+      background: var(--neutral-50);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { display: block; max-width: 100%; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      font-size: inherit;
+    }
+
+    input, select, textarea {
+      font-family: var(--font-body);
+      font-size: inherit;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── View System ───────────────────────────────────────── */
+    .view {
+      display: none;
+      min-height: 100vh;
+      animation: viewIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .view.active { display: block; }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── VISTA 1: LANDING ──────────────────────────────────── */
+    #view-landing {
+      background: var(--green-900);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Tile pattern background */
+    #view-landing::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 39px,
+          rgba(255,255,255,0.03) 39px,
+          rgba(255,255,255,0.03) 40px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 39px,
+          rgba(255,255,255,0.03) 39px,
+          rgba(255,255,255,0.03) 40px
+        );
+      pointer-events: none;
+    }
+
+    /* Gradient glow */
+    #view-landing::after {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(26,150,69,0.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .landing-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Nav */
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--green-400), var(--green-300));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span { color: var(--green-300); }
+
+    .nav-badge {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* Hero */
+    .landing-hero {
+      padding: 64px 0 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .landing-hero { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34,184,84,0.15);
+      border: 1px solid rgba(34,184,84,0.3);
+      color: var(--green-300);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -1.5px;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    .hero-title .accent {
+      color: var(--green-300);
+      display: block;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.65;
+      margin-bottom: 36px;
+      max-width: 440px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.12);
+      align-self: center;
+    }
+
+    /* Floating features strip */
+    .hero-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    .feature-chip {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background var(--transition);
+    }
+
+    .feature-chip:hover { background: rgba(255,255,255,0.1); }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(34,184,84,0.15);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .feature-text strong {
+      display: block;
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .feature-text span {
+      color: rgba(255,255,255,0.45);
+      font-size: 12.5px;
+    }
+
+    /* Form card */
+    .register-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+      margin-top: 48px;
+      margin-bottom: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .register-card { margin-top: 0; padding: 28px 24px; }
+    }
+
+    .form-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      color: var(--neutral-600);
+      margin-bottom: 28px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      letter-spacing: 0.1px;
+    }
+
+    .form-input {
+      padding: 11px 14px;
+      border: 1.5px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      font-size: 14.5px;
+      color: var(--neutral-900);
+      background: var(--neutral-50);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .form-input:focus {
+      border-color: var(--green-400);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(34,184,84,0.12);
+    }
+
+    .form-input::placeholder { color: var(--neutral-400); }
+
+    select.form-input { cursor: pointer; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px 24px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-400));
+      color: var(--white);
+      font-weight: 700;
+      font-size: 15.5px;
+      border-radius: var(--radius-sm);
+      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+      box-shadow: var(--shadow-green);
+      letter-spacing: -0.2px;
+      font-family: var(--font-display);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(26,150,69,.38);
+      filter: brightness(1.05);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .form-legal {
+      text-align: center;
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-top: 14px;
+    }
+
+    .form-legal a { color: var(--green-500); text-decoration: underline; }
+
+    /* Logos strip */
+    .landing-bottom {
+      padding: 32px 0 40px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .bottom-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 18px;
+      font-weight: 600;
+    }
+
+    .brands-row {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .brand-pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-full);
+      padding: 7px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 500;
+    }
+
+    /* ─── SHARED APP SHELL ──────────────────────────────────── */
+    .app-shell {
+      background: var(--neutral-50);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* App header */
+    .app-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--neutral-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .app-logo-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-400));
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .app-logo-text {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.4px;
+    }
+
+    .app-logo-text span { color: var(--green-500); }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-700));
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--white);
+      font-family: var(--font-display);
+    }
+
+    .header-user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-700);
+    }
+
+    @media (max-width: 480px) { .header-user-name { display: none; } }
+
+    /* Bottom Nav */
+    .app-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-top: 1px solid var(--neutral-200);
+      display: flex;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 4px 8px;
+      cursor: pointer;
+      transition: color var(--transition);
+      background: none;
+      color: var(--neutral-400);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .nav-item.active { color: var(--green-500); }
+    .nav-item:hover  { color: var(--neutral-700); }
+
+    .nav-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .app-content {
+      flex: 1;
+      padding-bottom: 80px;
+    }
+
+    .page-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* ─── VISTA 2: DASHBOARD ────────────────────────────────── */
+    .dash-greeting {
+      margin-bottom: 24px;
+    }
+
+    .dash-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--neutral-400);
+      margin-bottom: 4px;
+    }
+
+    .dash-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--neutral-900);
+    }
+
+    /* Credit card */
+    .credit-card {
+      background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 60%, var(--green-500) 100%);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-green);
+    }
+
+    .credit-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .credit-card::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      right: 20px;
+      width: 180px;
+      height: 180px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .credit-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 8px;
+    }
+
+    .credit-amount {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .credit-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 24px;
+    }
+
+    .credit-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .credit-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--white);
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .credit-logo-mark {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* CTA adelantar */
+    .cta-adelantar {
+      width: 100%;
+      padding: 18px 24px;
+      background: var(--green-500);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 17px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-green);
+      margin-bottom: 24px;
+      letter-spacing: -0.3px;
+    }
+
+    .cta-adelantar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(26,150,69,.4);
+    }
+
+    .cta-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Quick stats row */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stat-card-icon {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card-val {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+
+    .stat-card-label {
+      font-size: 11.5px;
+      color: var(--neutral-400);
+      font-weight: 500;
+    }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      letter-spacing: -0.3px;
+    }
+
+    .section-link {
+      font-size: 13px;
+      color: var(--green-500);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .section-link:hover { text-decoration: underline; }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 40px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      border: 2px dashed var(--neutral-200);
+    }
+
+    .empty-icon {
+      font-size: 44px;
+      margin-bottom: 14px;
+      opacity: 0.6;
+    }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--neutral-700);
+      margin-bottom: 6px;
+    }
+
+    .empty-sub {
+      font-size: 14px;
+      color: var(--neutral-400);
+      margin-bottom: 20px;
+    }
+
+    .btn-outline-green {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--green-50);
+      color: var(--green-600);
+      border: 1.5px solid var(--green-300);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      transition: background var(--transition), transform var(--transition);
+      cursor: pointer;
+    }
+
+    .btn-outline-green:hover {
+      background: var(--green-100);
+      transform: translateY(-1px);
+    }
+
+    /* ─── VISTA 3: ADELANTAR STOCK ──────────────────────────── */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all var(--transition);
+    }
+
+    .step-dot.done {
+      background: var(--green-400);
+      color: var(--white);
+    }
+
+    .step-dot.active {
+      background: var(--green-900);
+      color: var(--white);
+      box-shadow: 0 0 0 4px rgba(26,150,69,0.2);
+    }
+
+    .step-dot.pending {
+      background: var(--neutral-200);
+      color: var(--neutral-400);
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--neutral-200);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    .step-line-fill {
+      height: 100%;
+      background: var(--green-400);
+      border-radius: 1px;
+      transition: width 0.4s ease;
+    }
+
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--neutral-500);
+    }
+
+    /* ─── PROVIDER SELECTOR BAR ─────────────────────────────── */
+    .provider-bar {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .provider-bar::-webkit-scrollbar { display: none; }
+
+    .provider-card {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      position: relative;
+      transition: transform var(--transition);
+    }
+
+    .provider-card:hover { transform: translateY(-2px); }
+
+    .provider-logo {
+      width: 72px;
+      height: 50px;
+      border-radius: var(--radius-md);
+      border: 2.5px solid var(--neutral-200);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .provider-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 6px;
+    }
+
+    .provider-card.active .provider-logo {
+      border-color: var(--green-400);
+      box-shadow: 0 0 0 3px rgba(34,184,84,0.18), var(--shadow-sm);
+    }
+
+    .provider-logo-icon {
+      background: linear-gradient(135deg, var(--green-600), var(--green-400));
+    }
+
+    .provider-logo-text {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--neutral-600);
+      letter-spacing: -0.5px;
+      padding: 0 6px;
+      text-align: center;
+    }
+
+    .provider-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-400);
+      text-align: center;
+      max-width: 72px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color var(--transition);
+    }
+
+    .provider-card.active .provider-name { color: var(--green-600); }
+
+    .provider-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--green-400);
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--white);
+      pointer-events: none;
+    }
+
+    /* Sticky cart bar */
+    .cart-bar {
+      position: sticky;
+      top: 60px;
+      z-index: 50;
+      background: var(--white);
+      border-bottom: 1px solid var(--neutral-200);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .cart-total {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--neutral-900);
+    }
+
+    .cart-count {
+      font-size: 13px;
+      color: var(--neutral-400);
+    }
+
+    .btn-cart-go {
+      padding: 10px 20px;
+      background: var(--green-500);
+      color: var(--white);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
+      font-family: var(--font-display);
+      transition: filter var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-cart-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-cart-go:disabled {
+      background: var(--neutral-200);
+      color: var(--neutral-400);
+      transform: none;
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    /* Product grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .product-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      border: 2px solid transparent;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .product-card.selected {
+      border-color: var(--green-400);
+      background: var(--green-50);
+    }
+
+    .product-emoji {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .product-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-800);
+      line-height: 1.3;
+    }
+
+    .product-price {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green-600);
+    }
+
+    .product-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .qty-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: var(--neutral-100);
+      color: var(--neutral-700);
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+
+    .qty-btn:hover { background: var(--neutral-200); }
+
+    .qty-btn.add {
+      background: var(--green-500);
+      color: var(--white);
+    }
+
+    .qty-btn.add:hover { background: var(--green-600); }
+
+    .qty-display {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ─── RESUMEN DEL ADELANTO ──────────────────────────────── */
+    .summary-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 16px;
+    }
+
+    .summary-header {
+      background: linear-gradient(135deg, var(--green-800), var(--green-600));
+      padding: 20px 24px;
+    }
+
+    .summary-header-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .summary-total {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -1.5px;
+    }
+
+    .summary-total-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+
+    .summary-items {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--neutral-100);
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--neutral-100);
+    }
+
+    .summary-item:last-child { border-bottom: none; }
+
+    .summary-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .summary-item-emoji { font-size: 22px; }
+
+    .summary-item-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+
+    .summary-item-qty {
+      font-size: 12px;
+      color: var(--neutral-400);
+    }
+
+    .summary-item-subtotal {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--neutral-900);
+    }
+
+    /* Mora chart */
+    .mora-chart-section {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 16px;
+    }
+
+    .mora-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 4px;
+    }
+
+    .mora-sub {
+      font-size: 13px;
+      color: var(--neutral-400);
+      margin-bottom: 20px;
+    }
+
+    .mora-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mora-bar-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-600);
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .mora-bar-track {
+      flex: 1;
+      height: 28px;
+      background: var(--neutral-100);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mora-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--white);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mora-bar-fill.ok     { background: var(--green-400); }
+    .mora-bar-fill.warn1  { background: var(--amber-400); color: var(--neutral-900); }
+    .mora-bar-fill.warn2  { background: #f97316; }
+    .mora-bar-fill.danger { background: var(--red-500); }
+
+    .mora-bar-pct {
+      font-size: 13px;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .mora-bar-pct.ok     { color: var(--green-600); }
+    .mora-bar-pct.warn1  { color: var(--amber-500); }
+    .mora-bar-pct.warn2  { color: #f97316; }
+    .mora-bar-pct.danger { color: var(--red-500); }
+
+    .mora-note {
+      margin-top: 16px;
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 12.5px;
+      color: var(--neutral-600);
+      line-height: 1.5;
+    }
+
+    .mora-note strong { color: var(--neutral-800); }
+
+    /* Confirm button */
+    .btn-confirm {
+      width: 100%;
+      padding: 17px 24px;
+      background: linear-gradient(135deg, var(--green-600), var(--green-400));
+      color: var(--white);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 17px;
+      border-radius: var(--radius-md);
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-green);
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(26,150,69,.42);
+    }
+
+    .btn-back {
+      width: 100%;
+      padding: 13px 24px;
+      background: transparent;
+      color: var(--neutral-600);
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--neutral-200);
+      transition: background var(--transition);
+      margin-bottom: 20px;
+    }
+
+    .btn-back:hover { background: var(--neutral-100); }
+
+    /* ─── PASO 3: LOGÍSTICA ─────────────────────────────────── */
+    .logistics-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logistics-option {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+    }
+
+    .logistics-option:hover { box-shadow: var(--shadow-md); }
+
+    .logistics-option.selected {
+      border-color: var(--green-400);
+      background: var(--green-50);
+    }
+
+    .logistics-option-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .logistics-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+
+    .logistics-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 3px;
+    }
+
+    .logistics-desc { font-size: 13px; color: var(--neutral-500); line-height: 1.4; }
+
+    .logistics-price-tag {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .logistics-price-tag.free { background: var(--green-100); color: var(--green-700); }
+    .logistics-price-tag.cost { background: var(--amber-100); color: #92400e; }
+
+    .logistics-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .logistics-chip {
+      background: var(--neutral-100);
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--neutral-600);
+      font-weight: 500;
+    }
+
+    .logistics-option.selected .logistics-chip {
+      background: rgba(34,184,84,0.12);
+      color: var(--green-700);
+    }
+
+    .logistics-extra {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--neutral-100);
+      font-size: 13px;
+      color: var(--neutral-600);
+      background: var(--amber-100);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      line-height: 1.5;
+    }
+
+    .logistics-radio {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--neutral-300);
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .logistics-option.selected .logistics-radio {
+      border-color: var(--green-500);
+      background: var(--green-500);
+      box-shadow: inset 0 0 0 4px var(--white);
+    }
+
+    .logistics-total-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--green-400);
+    }
+
+    .logistics-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .logistics-total-row:last-child { margin-bottom: 0; }
+
+    .logistics-total-label { font-size: 13px; color: var(--neutral-500); }
+
+    .logistics-total-value {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--neutral-900);
+    }
+
+    .logistics-total-value.extra { color: #92400e; }
+
+    .logistics-total-value.final {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--green-600);
+    }
+
+    .logistics-total-divider {
+      border: none;
+      border-top: 1px solid var(--neutral-100);
+      margin: 10px 0;
+    }
+
+    /* ─── VISTA: MI DEPÓSITO ────────────────────────────────── */
+    .deposito-summary {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .deposito-summary::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .deposito-eyebrow {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: rgba(255,255,255,0.45); margin-bottom: 6px;
+    }
+
+    .deposito-amount {
+      font-family: var(--font-display);
+      font-size: 38px; font-weight: 800;
+      color: var(--white); letter-spacing: -1.5px;
+      line-height: 1; margin-bottom: 4px;
+    }
+
+    .deposito-sub { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 16px; }
+
+    .deposito-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .deposito-chip {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-full);
+      padding: 5px 12px;
+      font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500;
+    }
+
+    .deposito-item {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 18px; box-shadow: var(--shadow-card); margin-bottom: 10px;
+    }
+
+    .deposito-item-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; margin-bottom: 12px; gap: 12px;
+    }
+
+    .deposito-item-left { display: flex; align-items: center; gap: 12px; }
+    .deposito-item-emoji { font-size: 28px; }
+
+    .deposito-item-name { font-size: 15px; font-weight: 700; color: var(--neutral-900); margin-bottom: 2px; }
+    .deposito-item-meta { font-size: 12px; color: var(--neutral-400); }
+
+    .deposito-item-amount {
+      font-family: var(--font-display);
+      font-size: 16px; font-weight: 800; color: var(--neutral-900); text-align: right;
+    }
+
+    .deposito-item-cost { font-size: 12px; color: #92400e; text-align: right; }
+
+    .deposito-products { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+    .deposito-product-chip {
+      background: var(--neutral-100); border-radius: var(--radius-sm);
+      padding: 4px 10px; font-size: 12px; color: var(--neutral-700); font-weight: 500;
+    }
+
+    .btn-pedir-envio {
+      width: 100%; padding: 11px 16px;
+      background: var(--neutral-900); color: var(--white);
+      border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
+      font-family: var(--font-display);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: filter var(--transition), transform var(--transition);
+    }
+
+    .btn-pedir-envio:hover { filter: brightness(1.25); transform: translateY(-1px); }
+
+    .btn-pedir-envio.en-transito {
+      background: var(--amber-100); color: #92400e;
+      cursor: default; pointer-events: none;
+    }
+
+    /* ─── BOTTOM SHEET ───────────────────────────────────────── */
+    .bottom-sheet {
+      position: fixed; inset: 0; z-index: 300;
+      pointer-events: none; opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .bottom-sheet.show { pointer-events: all; opacity: 1; }
+
+    .bottom-sheet-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(10,46,26,0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .bottom-sheet-card {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--white);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      padding: 12px 24px 36px;
+      max-height: 85vh; overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.34, 1.1, 0.64, 1);
+    }
+
+    .bottom-sheet.show .bottom-sheet-card { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: var(--neutral-200); border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    .sheet-title {
+      font-family: var(--font-display);
+      font-size: 20px; font-weight: 800;
+      color: var(--neutral-900); letter-spacing: -0.4px; margin-bottom: 6px;
+    }
+
+    .sheet-product-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--neutral-100); border-radius: var(--radius-full);
+      padding: 5px 14px; font-size: 13px;
+      color: var(--neutral-700); font-weight: 500; margin-bottom: 20px;
+    }
+
+    .sheet-section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--neutral-400); margin-bottom: 10px;
+    }
+
+    .sucursal-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+
+    .sucursal-card {
+      padding: 14px 16px; border-radius: var(--radius-md);
+      border: 2px solid var(--neutral-200);
+      cursor: pointer; display: flex; align-items: center; gap: 12px;
+      transition: border-color var(--transition), background var(--transition);
+      position: relative;
+    }
+
+    .sucursal-card:hover { border-color: var(--neutral-400); }
+
+    .sucursal-card.selected { border-color: var(--green-400); background: var(--green-50); }
+
+    .sucursal-emoji { font-size: 22px; }
+
+    .sucursal-name { font-size: 14px; font-weight: 700; color: var(--neutral-900); margin-bottom: 1px; }
+    .sucursal-address { font-size: 12px; color: var(--neutral-400); }
+
+    .sucursal-radio {
+      position: absolute; right: 16px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid var(--neutral-300);
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .sucursal-card.selected .sucursal-radio {
+      border-color: var(--green-500);
+      background: var(--green-500);
+      box-shadow: inset 0 0 0 3px var(--white);
+    }
+
+    .sheet-eta {
+      text-align: center; font-size: 13px; color: var(--neutral-500);
+      margin-bottom: 16px; padding: 10px;
+      background: var(--neutral-50); border-radius: var(--radius-sm);
+    }
+
+    /* ─── VISTA 4: MI STOCK ─────────────────────────────────── */
+    .debt-summary {
+      background: linear-gradient(135deg, var(--neutral-900), var(--neutral-800));
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .debt-summary::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 160px;
+      height: 160px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .debt-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 6px;
+    }
+
+    .debt-amount {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -1.5px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .debt-amount.zero { color: var(--green-300); }
+
+    .debt-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 16px;
+    }
+
+    .debt-breakdown {
+      display: flex;
+      gap: 16px;
+    }
+
+    .debt-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-full);
+      padding: 5px 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 500;
+    }
+
+    .debt-pill.ok     { border-color: rgba(34,184,84,0.4); color: var(--green-300); background: rgba(34,184,84,0.12); }
+    .debt-pill.warn   { border-color: rgba(251,191,36,0.4); color: var(--amber-300); background: rgba(251,191,36,0.12); }
+    .debt-pill.danger { border-color: rgba(239,68,68,0.4);  color: #fca5a5; background: rgba(239,68,68,0.12); }
+
+    /* Stock items */
+    .stock-item {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .stock-item-emoji { font-size: 32px; }
+
+    .stock-item-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 2px;
+    }
+
+    .stock-item-meta {
+      font-size: 12px;
+      color: var(--neutral-400);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .stock-item-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stock-item-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .stock-item-amount {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--neutral-900);
+    }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .badge-ok     { background: var(--green-100); color: var(--green-700); }
+    .badge-warn   { background: var(--amber-100); color: #92400e; }
+    .badge-danger { background: var(--red-100);   color: #991b1b; }
+    .badge-paid   { background: var(--neutral-100); color: var(--neutral-500); }
+
+    .btn-pay-advance {
+      grid-column: 1 / -1;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--neutral-900);
+      color: var(--white);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 13.5px;
+      font-family: var(--font-display);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: filter var(--transition), transform var(--transition);
+      margin-top: 4px;
+    }
+    .btn-pay-advance:hover  { filter: brightness(1.3); transform: translateY(-1px); }
+    .btn-pay-advance.warn   { background: #92400e; }
+    .btn-pay-advance.danger { background: var(--red-500); }
+
+    .payment-breakdown {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      padding: 5px 0;
+    }
+    .payment-row-label { color: var(--neutral-600); }
+    .payment-row-value { font-weight: 600; color: var(--neutral-900); }
+    .payment-divider   { border: none; border-top: 1px solid var(--neutral-200); margin: 8px 0; }
+    .payment-total-label { font-size: 15px; font-weight: 700; color: var(--neutral-900); }
+    .payment-total-value { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--green-600); }
+    .payment-overdue-note {
+      background: var(--red-100);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: #991b1b;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* Success toast */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--neutral-900);
+      color: var(--white);
+      padding: 13px 22px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Confirmation overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,46,26,0.55);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .overlay-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      transform: scale(0.92);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .overlay.show .overlay-card { transform: scale(1); }
+
+    .overlay-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--green-400), var(--green-300));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 20px;
+    }
+
+    .overlay-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--neutral-900);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .overlay-sub {
+      font-size: 14px;
+      color: var(--neutral-500);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .overlay-btn {
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--green-500);
+      color: var(--white);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: var(--radius-sm);
+      transition: filter var(--transition);
+      box-shadow: var(--shadow-green);
+    }
+
+    .overlay-btn:hover { filter: brightness(1.07); }
+
+    /* Misc utilities */
+    .mt-2  { margin-top: 8px; }
+    .mt-4  { margin-top: 16px; }
+    .mt-6  { margin-top: 24px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--neutral-200); border-radius: 999px; }
+
+    /* Page-specific page-back button */
+    .page-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--neutral-600);
+      cursor: pointer;
+      margin-bottom: 20px;
+      padding: 6px 0;
+      transition: color var(--transition);
+    }
+
+    .page-back:hover { color: var(--neutral-900); }
+
+    /* Responsive tweaks */
+    @media (max-width: 480px) {
+      .credit-amount { font-size: 36px; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick-stats { grid-template-columns: repeat(3, 1fr); }
+      .stock-item { grid-template-columns: auto 1fr auto; gap: 10px; }
+    }
+
+    @media (max-width: 360px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .mora-bar-label { width: 80px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ───────────────── DELIVERY BOTTOM SHEET ───────────────── -->
+<div class="bottom-sheet" id="delivery-sheet">
+  <div class="bottom-sheet-backdrop" onclick="closeDeliverySheet()"></div>
+  <div class="bottom-sheet-card">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Enviar a sucursal</div>
+    <div id="sheet-product-pill"></div>
+    <div class="sheet-section-label">¿A qué sucursal enviamos?</div>
+    <div class="sucursal-list" id="sucursal-list"></div>
+    <div class="sheet-eta">⏱ Estimado 24–48 hs hábiles · Sin costo adicional</div>
+    <button class="btn-confirm" onclick="confirmDelivery()">
+      <span>Confirmar envío</span>
+      <span>→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ───────────────── PAYMENT BOTTOM SHEET ───────────────── -->
+<div class="bottom-sheet" id="payment-sheet">
+  <div class="bottom-sheet-backdrop" onclick="closePaymentSheet()"></div>
+  <div class="bottom-sheet-card">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Pagar adelanto</div>
+    <div id="payment-product-pill"></div>
+    <div id="payment-overdue-note"></div>
+    <div class="payment-breakdown" id="payment-breakdown"></div>
+    <button class="btn-confirm" id="btn-confirm-payment" onclick="confirmPayment()">
+      <span>Confirmar pago</span>
+      <span>→</span>
+    </button>
+    <button class="btn-back" onclick="closePaymentSheet()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ───────────────── TOAST ───────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ───────────────── SUCCESS OVERLAY ───────────────── -->
+<div class="overlay" id="overlay-success">
+  <div class="overlay-card">
+    <div class="overlay-icon">
+      <svg width="38" height="34" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="11" cy="21" r="2.2" fill="white"/>
+        <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+        <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="overlay-title">¡Adelanto confirmado!</div>
+    <div class="overlay-sub" id="overlay-msg">
+      Tu stock está en camino. Recordá pagarlo antes del vencimiento para mantener tu línea activa.
+    </div>
+    <button class="overlay-btn" onclick="closeOverlay()">Ver mi stock</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA 1: LANDING / REGISTRO
+═══════════════════════════════════════════════════════════ -->
+<div class="view active" id="view-landing">
+  <div class="landing-inner">
+
+    <!-- Nav -->
+    <nav class="landing-nav">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="22" height="20" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="11" cy="21" r="2.2" fill="white"/>
+            <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+            <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">Stock<span>Ya</span></div>
+      </div>
+      <div class="nav-badge">Fintech B2B · Argentina</div>
+    </nav>
+
+    <!-- Hero + Form -->
+    <div class="landing-hero">
+
+      <!-- Left: copy -->
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="4" fill="#4dd67a"/></svg>
+          Ahora disponible para almacenes y kioscos
+        </div>
+        <h1 class="hero-title">
+          Adelantá tu stock hoy,
+          <span class="accent">pagá cuando<br>vendas.</span>
+        </h1>
+        <p class="hero-sub">
+          StockYa te da la mercadería que necesitás ahora. Sin efectivo de salida, sin papeleo. Solo elegís, recibís y vendés.
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-val">+1.200</span>
+            <span class="stat-label">Almacenes activos</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-val">$50K</span>
+            <span class="stat-label">Línea inicial</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-val">24hs</span>
+            <span class="stat-label">Entrega</span>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="hero-features" style="margin-top:36px">
+          <div class="feature-chip">
+            <div class="feature-icon">🚀</div>
+            <div class="feature-text">
+              <strong>Sin historial crediticio</strong>
+              <span>Scoring basado en tu comportamiento de pago</span>
+            </div>
+          </div>
+          <div class="feature-chip">
+            <div class="feature-icon">📲</div>
+            <div class="feature-text">
+              <strong>100% digital</strong>
+              <span>Pedido en minutos, entrega en 24hs</span>
+            </div>
+          </div>
+          <div class="feature-chip">
+            <div class="feature-icon">📈</div>
+            <div class="feature-text">
+              <strong>Línea que crece</strong>
+              <span>Cuanto más pagás a tiempo, más crédito tenés</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: form -->
+      <div>
+        <div class="register-card">
+          <div class="form-title">Registrá tu negocio</div>
+          <div class="form-subtitle">Gratis. Sin letra chica. En 2 minutos.</div>
+
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label class="form-label" for="biz-name">Nombre del negocio</label>
+                <input
+                  class="form-input"
+                  id="biz-name"
+                  type="text"
+                  placeholder="Almacén Don Carlos"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="biz-cuit">CUIT</label>
+                <input
+                  class="form-input"
+                  id="biz-cuit"
+                  type="text"
+                  placeholder="20-12345678-9"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="biz-phone">Teléfono</label>
+                <input
+                  class="form-input"
+                  id="biz-phone"
+                  type="tel"
+                  placeholder="11 4567-8901"
+                  required
+                />
+              </div>
+              <div class="form-group full">
+                <label class="form-label" for="biz-address">Dirección</label>
+                <input
+                  class="form-input"
+                  id="biz-address"
+                  type="text"
+                  placeholder="Av. Corrientes 1234, CABA"
+                  required
+                />
+              </div>
+              <div class="form-group full">
+                <label class="form-label" for="biz-type">Tipo de local</label>
+                <select class="form-input" id="biz-type" required>
+                  <option value="" disabled selected>Seleccioná una opción</option>
+                  <option value="almacen">Almacén</option>
+                  <option value="kiosco">Kiosco</option>
+                  <option value="verduleria">Verdulería / Almacén Natural</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:20px">
+              <button type="submit" class="btn-primary">
+                Empezar ahora — es gratis
+              </button>
+            </div>
+            <div class="form-legal">
+              Al registrarte aceptás los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom strip -->
+    <div class="landing-bottom">
+      <div class="bottom-label">Productos disponibles en tu línea de crédito</div>
+      <div class="brands-row">
+        <div class="brand-pill">Coca-Cola</div>
+        <div class="brand-pill">Marolio</div>
+        <div class="brand-pill">Gallo Oro</div>
+        <div class="brand-pill">Natura</div>
+        <div class="brand-pill">Playadito</div>
+        <div class="brand-pill">Ledesma</div>
+        <div class="brand-pill">Casancream</div>
+        <div class="brand-pill">+ más marcas</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA 2: DASHBOARD
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo" onclick="showView('dashboard')">
+          <div class="app-logo-mark">
+            <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="11" cy="21" r="2.2" fill="white"/>
+              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="app-logo-text">Stock<span>Ya</span></div>
+        </div>
+        <div class="header-user">
+          <div class="header-user-name" id="header-biz-name">Mi Negocio</div>
+          <div class="avatar" id="header-avatar">MN</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-container">
+
+        <!-- Greeting -->
+        <div class="dash-greeting">
+          <div class="dash-eyebrow" id="dash-day-greeting">Buen día</div>
+          <div class="dash-title" id="dash-biz-name">Almacén Don Carlos</div>
+        </div>
+
+        <!-- Credit card -->
+        <div class="credit-card">
+          <div class="credit-card-label">Línea de crédito disponible</div>
+          <div class="credit-amount" id="dash-credit">$50.000</div>
+          <div class="credit-sub">Para adelantos de stock</div>
+          <div class="credit-footer">
+            <div class="credit-badge">Nivel 1 · En crecimiento</div>
+            <div class="credit-logo-mark">
+            <svg width="20" height="18" viewBox="0 0 26 24" fill="none">
+              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="11" cy="21" r="2.2" fill="white"/>
+              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          </div>
+        </div>
+
+        <!-- CTA Adelantar -->
+        <button class="cta-adelantar" onclick="showView('adelantar')">
+          <div class="cta-icon">➕</div>
+          Adelantar stock
+        </button>
+
+        <!-- Quick stats -->
+        <div class="quick-stats">
+          <div class="stat-card">
+            <div class="stat-card-icon">📦</div>
+            <div class="stat-card-val" id="dash-productos-count">0</div>
+            <div class="stat-card-label">Productos activos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">📅</div>
+            <div class="stat-card-val" id="dash-adelantos-count">0</div>
+            <div class="stat-card-label">Adelantos totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon">✅</div>
+            <div class="stat-card-val" id="dash-pagados-count">0</div>
+            <div class="stat-card-label">Pagados a término</div>
+          </div>
+        </div>
+
+        <!-- Mi Stock preview -->
+        <div class="section-header">
+          <div class="section-title">Mi Stock actual</div>
+          <div class="section-link" onclick="showView('mistock')">Ver todo →</div>
+        </div>
+
+        <div id="dash-stock-preview">
+          <!-- filled by JS -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="app-bottom-nav">
+      <button class="nav-item active" id="nav-dash" onclick="showView('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-item" id="nav-adelantar" onclick="showView('adelantar')">
+        <span class="nav-icon">➕</span>
+        <span>Adelantar</span>
+      </button>
+      <button class="nav-item" id="nav-stock" onclick="showView('mistock')">
+        <span class="nav-icon">📦</span>
+        <span>Mi Stock</span>
+      </button>
+      <button class="nav-item" id="nav-deposito" onclick="showView('deposito')">
+        <span class="nav-icon">🏭</span>
+        <span>Depósito</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA 3: ADELANTAR STOCK
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-adelantar">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo" onclick="showView('dashboard')">
+          <div class="app-logo-mark">
+            <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="11" cy="21" r="2.2" fill="white"/>
+              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="app-logo-text">Stock<span>Ya</span></div>
+        </div>
+        <div class="header-user">
+          <div class="header-user-name" id="adelantar-header-name">Mi Negocio</div>
+          <div class="avatar" id="adelantar-avatar">MN</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cart bar -->
+    <div class="cart-bar" id="cart-bar">
+      <div>
+        <div class="cart-total" id="cart-total-display">$0</div>
+        <div class="cart-count" id="cart-count-display">0 productos seleccionados</div>
+      </div>
+      <button class="btn-cart-go" id="btn-go-summary" onclick="goToSummary()" disabled>
+        Ver resumen →
+      </button>
+    </div>
+
+    <div class="app-content">
+      <div class="page-container">
+
+        <!-- Step indicator -->
+        <div class="step-indicator">
+          <div class="step-dot active" id="step-1-dot">1</div>
+          <div class="step-line"><div class="step-line-fill" id="step-line-1-fill" style="width:0%"></div></div>
+          <div class="step-dot pending" id="step-2-dot">2</div>
+          <div class="step-line"><div class="step-line-fill" id="step-line-2-fill" style="width:0%"></div></div>
+          <div class="step-dot pending" id="step-3-dot">3</div>
+        </div>
+
+        <!-- PASO 1: ELEGIR PRODUCTOS -->
+        <div id="paso1">
+          <div class="section-header" style="margin-bottom:6px">
+            <div class="section-title">Elegí tus productos</div>
+          </div>
+          <p style="font-size:13px;color:var(--neutral-400);margin-bottom:14px">
+            Seleccioná el proveedor y la cantidad de cada producto.
+          </p>
+
+          <!-- Barra de proveedores -->
+          <div class="provider-bar" id="provider-bar">
+            <!-- filled by JS -->
+          </div>
+
+          <div class="products-grid" id="products-grid">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <!-- PASO 2: RESUMEN -->
+        <div id="paso2" style="display:none">
+          <div class="page-back" onclick="backToStep1()">
+            ← Volver a productos
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-header">
+              <div class="summary-header-label">Total del adelanto</div>
+              <div class="summary-total" id="summary-total-amount">$0</div>
+              <div class="summary-total-sub">Pagá en 30 días sin mora</div>
+            </div>
+            <div class="summary-items" id="summary-items-list">
+              <!-- filled by JS -->
+            </div>
+          </div>
+
+          <!-- Mora chart -->
+          <div class="mora-chart-section">
+            <div class="mora-title">Cuadro de tasas de mora</div>
+            <div class="mora-sub">¿Qué pasa si pagás tarde?</div>
+
+            <div class="mora-bar-row">
+              <div class="mora-bar-label">Hasta 30 días</div>
+              <div class="mora-bar-track">
+                <div class="mora-bar-fill ok" style="width:0%" data-width="12%">
+                  Sin mora
+                </div>
+              </div>
+              <div class="mora-bar-pct ok">0%</div>
+            </div>
+
+            <div class="mora-bar-row">
+              <div class="mora-bar-label">31 – 45 días</div>
+              <div class="mora-bar-track">
+                <div class="mora-bar-fill warn1" style="width:0%" data-width="28%">
+                  +5%
+                </div>
+              </div>
+              <div class="mora-bar-pct warn1">+5%</div>
+            </div>
+
+            <div class="mora-bar-row">
+              <div class="mora-bar-label">46 – 60 días</div>
+              <div class="mora-bar-track">
+                <div class="mora-bar-fill warn2" style="width:0%" data-width="56%">
+                  +12%
+                </div>
+              </div>
+              <div class="mora-bar-pct warn2">+12%</div>
+            </div>
+
+            <div class="mora-bar-row">
+              <div class="mora-bar-label">Más de 60 días</div>
+              <div class="mora-bar-track">
+                <div class="mora-bar-fill danger" style="width:0%" data-width="88%">
+                  +22%
+                </div>
+              </div>
+              <div class="mora-bar-pct danger">+22%</div>
+            </div>
+
+            <div class="mora-note">
+              <strong>Importante:</strong> superar los 60 días puede causar la <strong>suspensión temporal de tu línea de crédito</strong>. Pagá a tiempo y tu línea crece automáticamente.
+            </div>
+          </div>
+
+          <button class="btn-confirm" onclick="goToLogistics()">
+            <span>Elegir logística</span>
+            <span>→</span>
+          </button>
+          <button class="btn-back" onclick="backToStep1()">Volver a elegir productos</button>
+        </div>
+
+        <!-- PASO 3: LOGÍSTICA -->
+        <div id="paso3" style="display:none">
+          <div class="page-back" onclick="backToStep2()">← Volver al resumen</div>
+
+          <div style="font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:-0.4px;margin-bottom:6px;color:var(--neutral-900)">
+            ¿Cómo recibís el stock?
+          </div>
+          <p style="font-size:13px;color:var(--neutral-400);margin-bottom:20px">
+            Elegí cómo gestionar la entrega de tu pedido.
+          </p>
+
+          <div class="logistics-options">
+
+            <!-- Opción 1: Envío a domicilio -->
+            <div class="logistics-option selected" id="logi-envio" onclick="selectLogistics('envio')">
+              <div class="logistics-radio" id="radio-envio"></div>
+              <div class="logistics-option-header">
+                <div class="logistics-icon">🚚</div>
+                <div>
+                  <div class="logistics-name">Envío a domicilio</div>
+                  <div class="logistics-desc">Recibís en tu negocio en 24 a 48 hs hábiles</div>
+                </div>
+                <div class="logistics-price-tag free">Gratis</div>
+              </div>
+              <div class="logistics-chips">
+                <div class="logistics-chip">📍 Hasta 20 km de CABA</div>
+                <div class="logistics-chip">🕐 Lun–Sáb 8–18hs</div>
+                <div class="logistics-chip">📋 Firma en entrega</div>
+              </div>
+            </div>
+
+            <!-- Opción 2: Depósito StockYa -->
+            <div class="logistics-option" id="logi-deposito" onclick="selectLogistics('deposito')">
+              <div class="logistics-radio" id="radio-deposito"></div>
+              <div class="logistics-option-header">
+                <div class="logistics-icon">🏭</div>
+                <div>
+                  <div class="logistics-name">Guardar en depósito StockYa</div>
+                  <div class="logistics-desc">Dejá el stock en nuestro almacén y retirá cuando lo necesitás</div>
+                </div>
+                <div class="logistics-price-tag cost">+2% / mes</div>
+              </div>
+              <div class="logistics-chips">
+                <div class="logistics-chip">🌡️ Almacén climatizado</div>
+                <div class="logistics-chip">🔒 Stock asegurado</div>
+                <div class="logistics-chip">📦 Retiro en el día</div>
+                <div class="logistics-chip">♻️ Cobertura inflacionaria</div>
+              </div>
+              <div class="logistics-extra" id="deposito-cost-info" style="display:none;margin-top:12px;padding-top:0;border-top:none">
+                <!-- filled by JS -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Total breakdown -->
+          <div class="logistics-total-card" id="logistics-total-card">
+            <!-- filled by JS -->
+          </div>
+
+          <button class="btn-confirm" onclick="confirmAdelanto()">
+            <span>Confirmar adelanto</span>
+            <span>→</span>
+          </button>
+          <button class="btn-back" onclick="backToStep2()">Volver al resumen</button>
+        </div>
+
+      </div>
+    </div>
+
+    <nav class="app-bottom-nav">
+      <button class="nav-item" id="nav-dash-2" onclick="showView('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-item active" id="nav-adelantar-2" onclick="showView('adelantar')">
+        <span class="nav-icon">➕</span>
+        <span>Adelantar</span>
+      </button>
+      <button class="nav-item" id="nav-stock-2" onclick="showView('mistock')">
+        <span class="nav-icon">📦</span>
+        <span>Mi Stock</span>
+      </button>
+      <button class="nav-item" id="nav-deposito-2" onclick="showView('deposito')">
+        <span class="nav-icon">🏭</span>
+        <span>Depósito</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA 4: MI STOCK
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-mistock">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo" onclick="showView('dashboard')">
+          <div class="app-logo-mark">
+            <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="11" cy="21" r="2.2" fill="white"/>
+              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="app-logo-text">Stock<span>Ya</span></div>
+        </div>
+        <div class="header-user">
+          <div class="header-user-name" id="stock-header-name">Mi Negocio</div>
+          <div class="avatar" id="stock-avatar">MN</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-container">
+
+        <div class="section-title" style="margin-bottom:16px;font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:-0.5px">Mi Stock</div>
+
+        <!-- Debt summary -->
+        <div class="debt-summary">
+          <div class="debt-eyebrow">Deuda total activa</div>
+          <div class="debt-amount" id="stock-debt-total">$0</div>
+          <div class="debt-sub" id="stock-debt-sub">No tenés adelantos activos</div>
+          <div class="debt-breakdown" id="stock-debt-breakdown">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <!-- Stock items list -->
+        <div class="section-header">
+          <div class="section-title">Productos adelantados</div>
+        </div>
+
+        <div id="stock-items-list">
+          <!-- filled by JS -->
+        </div>
+
+      </div>
+    </div>
+
+    <nav class="app-bottom-nav">
+      <button class="nav-item" id="nav-dash-3" onclick="showView('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-item" id="nav-adelantar-3" onclick="showView('adelantar')">
+        <span class="nav-icon">➕</span>
+        <span>Adelantar</span>
+      </button>
+      <button class="nav-item active" id="nav-stock-3" onclick="showView('mistock')">
+        <span class="nav-icon">📦</span>
+        <span>Mi Stock</span>
+      </button>
+      <button class="nav-item" id="nav-deposito-3" onclick="showView('deposito')">
+        <span class="nav-icon">🏭</span>
+        <span>Depósito</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     VISTA 5: MI DEPÓSITO
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-deposito">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo" onclick="showView('dashboard')">
+          <div class="app-logo-mark">
+            <svg width="18" height="16" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="11" cy="21" r="2.2" fill="white"/>
+              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
+              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="app-logo-text">Stock<span>Ya</span></div>
+        </div>
+        <div class="header-user">
+          <div class="header-user-name" id="deposito-header-name">Mi Negocio</div>
+          <div class="avatar" id="deposito-avatar">MN</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-container">
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:16px;color:var(--neutral-900)">
+          Mi Depósito
+        </div>
+        <div id="deposito-summary-section"></div>
+        <div class="section-header">
+          <div class="section-title">Stock almacenado</div>
+        </div>
+        <div id="deposito-items-list"></div>
+      </div>
+    </div>
+
+    <nav class="app-bottom-nav">
+      <button class="nav-item" onclick="showView('dashboard')"><span class="nav-icon">🏠</span><span>Inicio</span></button>
+      <button class="nav-item" onclick="showView('adelantar')"><span class="nav-icon">➕</span><span>Adelantar</span></button>
+      <button class="nav-item" onclick="showView('mistock')"><span class="nav-icon">📦</span><span>Mi Stock</span></button>
+      <button class="nav-item active" onclick="showView('deposito')"><span class="nav-icon">🏭</span><span>Depósito</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+/* ─── Config ──────────────────────────────────────────────── */
+const API = 'http://localhost:8080';
+
+/* ─── State ───────────────────────────────────────────────── */
+const state = {
+  biz: { id: null, name: '', cuit: '', phone: '', address: '', type: '' },
+  cart: {},
+  logistics: 'envio',
+  selectedProvider: 'todos',
+  stockItems: [],
+};
+
+/* ─── Catalog defaults (API overrides on init if reachable) ── */
+let PROVIDERS = [
+  { id: 'todos',      name: 'Todos',             type: 'icon' },
+  { id: 'coto',       name: 'Coto',              type: 'img',  src: 'assets/coto.png' },
+  { id: 'argenchino', name: 'Supermercado Chino', type: 'img',  src: 'assets/argenchino.jpeg', badge: '新' },
+  { id: 'diarco',     name: 'Diarco',            type: 'text', text: 'DIARCO' },
+  { id: 'makro',      name: 'Makro',             type: 'text', text: 'MAKRO' },
+];
+
+let PRODUCTS = [
+  { id: 'cc225',   name: 'Coca-Cola 2.25L',      price: 2800, emoji: '🥤', providers: ['coto', 'diarco'] },
+  { id: 'cc500x6', name: 'Coca-Cola 500ml (x6)', price: 4200, emoji: '🧃', providers: ['coto', 'makro'] },
+  { id: 'fid',     name: 'Fideos Marolio 500g',  price: 1100, emoji: '🍝', providers: ['argenchino', 'diarco', 'makro'] },
+  { id: 'arr',     name: 'Arroz Gallo Oro 1kg',  price: 1400, emoji: '🍚', providers: ['argenchino', 'diarco'] },
+  { id: 'cas',     name: 'Casancream x36',        price: 3600, emoji: '🍪', providers: ['argenchino', 'coto'] },
+  { id: 'ace',     name: 'Aceite Natura 1.5L',   price: 2200, emoji: '🫒', providers: ['coto', 'makro', 'diarco'] },
+  { id: 'yer',     name: 'Yerba Playadito 500g', price: 1800, emoji: '🧉', providers: ['argenchino', 'diarco'] },
+  { id: 'azu',     name: 'Azúcar Ledesma 1kg',   price:  950, emoji: '🍬', providers: ['coto', 'argenchino', 'makro'] },
+];
+
+let SUCURSALES = [
+  { id: 'centro',   name: 'Sucursal Centro',   address: 'Av. Corrientes 1234, CABA', emoji: '🏙️' },
+  { id: 'palermo',  name: 'Sucursal Palermo',   address: 'Thames 1800, Palermo',       emoji: '🌳' },
+  { id: 'belgrano', name: 'Sucursal Belgrano',  address: 'Cabildo 2500, Belgrano',     emoji: '🏘️' },
+  { id: 'flores',   name: 'Sucursal Flores',    address: 'Av. Rivadavia 6000, Flores', emoji: '🌸' },
+];
+
+/* ─── View router ─────────────────────────────────────────── */
+const VIEW_MAP = {
+  landing:    'view-landing',
+  dashboard:  'view-dashboard',
+  adelantar:  'view-adelantar',
+  mistock:    'view-mistock',
+  deposito:   'view-deposito',
+};
+
+function showView(name) {
+  Object.values(VIEW_MAP).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('active');
+    }
+  });
+  const target = document.getElementById(VIEW_MAP[name]);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  if (name === 'dashboard')  renderDashboard();
+  if (name === 'adelantar')  { state.selectedProvider = 'todos'; renderProviderBar(); renderProducts(); renderAdelantarStep(1); }
+  if (name === 'mistock')    renderMiStock();
+  if (name === 'deposito')   renderDeposito();
+}
+
+/* ─── Greeting ────────────────────────────────────────────── */
+function getDayGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buen día';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+/* ─── API helpers ─────────────────────────────────────────── */
+async function apiFetch(path, options = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'unknown error' }));
+    throw new Error(err.error || res.statusText);
+  }
+  return res.json();
+}
+
+async function loadAdvances() {
+  if (!state.biz.id) return;
+  state.stockItems = await apiFetch(`/api/businesses/${state.biz.id}/advances`) || [];
+}
+
+/* ─── Register ────────────────────────────────────────────── */
+async function handleRegister(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true;
+  btn.textContent = 'Registrando...';
+
+  try {
+    const biz = await apiFetch('/api/businesses', {
+      method: 'POST',
+      body: JSON.stringify({
+        name:    document.getElementById('biz-name').value.trim(),
+        cuit:    document.getElementById('biz-cuit').value.trim(),
+        phone:   document.getElementById('biz-phone').value.trim(),
+        address: document.getElementById('biz-address').value.trim(),
+        type:    document.getElementById('biz-type').value,
+      }),
+    });
+    state.biz = { ...biz };
+    updateBizUI(biz.name);
+    showView('dashboard');
+  } catch (err) {
+    alert('Error al registrar: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Empezar ahora — es gratis';
+  }
+}
+
+function updateBizUI(name) {
+  const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  ['header-avatar', 'adelantar-avatar', 'stock-avatar', 'deposito-avatar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = initials;
+  });
+  ['header-biz-name', 'adelantar-header-name', 'stock-header-name', 'deposito-header-name'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = name;
+  });
+}
+
+/* ─── Dashboard ───────────────────────────────────────────── */
+async function renderDashboard() {
+  document.getElementById('dash-day-greeting').textContent = getDayGreeting();
+  document.getElementById('dash-biz-name').textContent     = state.biz.name || 'Mi Negocio';
+  if (!state.biz.id) return;
+
+  try {
+    const [stats] = await Promise.all([
+      apiFetch(`/api/businesses/${state.biz.id}/dashboard`),
+      loadAdvances(),
+    ]);
+    const available = stats.business.creditLimit - stats.business.creditUsed;
+    document.getElementById('dash-credit').textContent        = '$' + available.toLocaleString('es-AR');
+    document.getElementById('dash-productos-count').textContent = stats.activeProducts;
+    document.getElementById('dash-adelantos-count').textContent = stats.totalAdelantos;
+    document.getElementById('dash-pagados-count').textContent   = stats.totalPagados;
+    renderDashboardPreview();
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+  }
+}
+
+function renderDashboardPreview() {
+  const preview = document.getElementById('dash-stock-preview');
+  if (state.stockItems.length === 0) {
+    preview.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <div class="empty-title">Aún no tenés stock adelantado</div>
+        <div class="empty-sub">Pedí tu primer adelanto y empezá a vender hoy.</div>
+        <button class="btn-outline-green" onclick="showView('adelantar')">
+          <span>➕</span> Adelantar stock ahora
+        </button>
+      </div>`;
+    return;
+  }
+  const recent = state.stockItems.slice(-2).reverse();
+  preview.innerHTML = recent.map(entry => `
+    <div class="stock-item" style="margin-bottom:10px">
+      <div class="stock-item-emoji">${entry.items[0].emoji}</div>
+      <div>
+        <div class="stock-item-name">${entry.items.length === 1 ? entry.items[0].name : entry.items.length + ' productos'}</div>
+        <div class="stock-item-meta">
+          <span>📅 Vence ${entry.dueDate}</span>
+          <span>📦 ${entry.items.reduce((s, i) => s + i.qty, 0)} unidades</span>
+        </div>
+      </div>
+      <div class="stock-item-right">
+        <div class="stock-item-amount">$${entry.total.toLocaleString('es-AR')}</div>
+        ${badgeHtml(entry.status)}
+      </div>
+    </div>
+  `).join('');
+  if (state.stockItems.length > 2) {
+    preview.innerHTML += `
+      <div style="text-align:center;margin-top:8px">
+        <div class="section-link" onclick="showView('mistock')">Ver todos los adelantos →</div>
+      </div>`;
+  }
+}
+
+/* ─── Provider bar ────────────────────────────────────────── */
+function renderProviderBar() {
+  const bar = document.getElementById('provider-bar');
+  if (!bar) return;
+  bar.innerHTML = PROVIDERS.map(pv => {
+    const isActive = pv.id === state.selectedProvider;
+    const count    = pv.id === 'todos'
+      ? PRODUCTS.length
+      : PRODUCTS.filter(p => p.providers.includes(pv.id)).length;
+
+    let logoInner;
+    if (pv.type === 'img') {
+      logoInner = `<img src="${pv.src}" alt="${pv.name}" loading="lazy">`;
+    } else if (pv.type === 'icon') {
+      logoInner = `<svg width="22" height="20" viewBox="0 0 26 24" fill="none"><path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="21" r="2.2" fill="white"/><circle cx="19.5" cy="21" r="2.2" fill="white"/><path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    } else {
+      logoInner = `<div class="provider-logo-text">${pv.text}</div>`;
+    }
+
+    return `
+      <div class="provider-card ${isActive ? 'active' : ''}" onclick="selectProvider('${pv.id}')">
+        <div class="provider-logo ${pv.type === 'icon' ? 'provider-logo-icon' : ''}" style="${pv.type === 'icon' ? 'color:white' : ''}">
+          ${logoInner}
+        </div>
+        ${pv.badge ? `<div class="provider-badge">${pv.badge}</div>` : ''}
+        <div class="provider-name">${pv.id === 'todos' ? `Todos (${count})` : `${pv.name} · ${count}`}</div>
+      </div>`;
+  }).join('');
+}
+
+function selectProvider(id) {
+  state.selectedProvider = id;
+  renderProviderBar();
+  renderProducts();
+}
+
+/* ─── Products grid ───────────────────────────────────────── */
+function renderProducts() {
+  const grid     = document.getElementById('products-grid');
+  const filtered = state.selectedProvider === 'todos'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.providers.includes(state.selectedProvider));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--neutral-400);font-size:14px">Sin productos para este proveedor</div>`;
+    updateCartBar();
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => {
+    const qty = state.cart[p.id] || 0;
+    return `
+      <div class="product-card ${qty > 0 ? 'selected' : ''}" id="pcard-${p.id}">
+        <div class="product-emoji">${p.emoji}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">$${p.price.toLocaleString('es-AR')}</div>
+        <div class="product-controls">
+          <button class="qty-btn" onclick="changeQty('${p.id}', -1)" ${qty === 0 ? 'style="opacity:.35;pointer-events:none"' : ''}>−</button>
+          <div class="qty-display">${qty}</div>
+          <button class="qty-btn add" onclick="changeQty('${p.id}', 1)">+</button>
+        </div>
+      </div>`;
+  }).join('');
+  updateCartBar();
+}
+
+function changeQty(productId, delta) {
+  const current = state.cart[productId] || 0;
+  const next    = Math.max(0, current + delta);
+  if (next === 0) {
+    delete state.cart[productId];
+  } else {
+    state.cart[productId] = next;
+  }
+  // Re-render just the affected card
+  const p   = PRODUCTS.find(x => x.id === productId);
+  const qty = state.cart[productId] || 0;
+  const card = document.getElementById('pcard-' + productId);
+  if (card) {
+    card.className = 'product-card ' + (qty > 0 ? 'selected' : '');
+    card.innerHTML = `
+      <div class="product-emoji">${p.emoji}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-price">$${p.price.toLocaleString('es-AR')}</div>
+      <div class="product-controls">
+        <button class="qty-btn" onclick="changeQty('${p.id}', -1)" ${qty === 0 ? 'style="opacity:.35;pointer-events:none"' : ''}>−</button>
+        <div class="qty-display">${qty}</div>
+        <button class="qty-btn add" onclick="changeQty('${p.id}', 1)">+</button>
+      </div>`;
+  }
+  updateCartBar();
+}
+
+function updateCartBar() {
+  let total = 0, count = 0;
+  PRODUCTS.forEach(p => {
+    const qty = state.cart[p.id] || 0;
+    total += qty * p.price;
+    count += qty;
+  });
+  document.getElementById('cart-total-display').textContent =
+    '$' + total.toLocaleString('es-AR');
+  document.getElementById('cart-count-display').textContent =
+    count === 0
+      ? '0 productos seleccionados'
+      : count + (count === 1 ? ' producto' : ' productos') + ' · ' + Object.keys(state.cart).length + ' tipos';
+  const btn = document.getElementById('btn-go-summary');
+  btn.disabled = count === 0;
+}
+
+function cartTotal() {
+  return PRODUCTS.reduce((s, p) => s + (state.cart[p.id] || 0) * p.price, 0);
+}
+
+/* ─── Step navigation ─────────────────────────────────────── */
+function renderAdelantarStep(step) {
+  const p1 = document.getElementById('paso1');
+  const p2 = document.getElementById('paso2');
+  const p3 = document.getElementById('paso3');
+  const dot1 = document.getElementById('step-1-dot');
+  const dot2 = document.getElementById('step-2-dot');
+  const dot3 = document.getElementById('step-3-dot');
+  const line1 = document.getElementById('step-line-1-fill');
+  const line2 = document.getElementById('step-line-2-fill');
+
+  p1.style.display = 'none';
+  p2.style.display = 'none';
+  p3.style.display = 'none';
+
+  if (step === 1) {
+    p1.style.display = '';
+    dot1.className = 'step-dot active'; dot1.textContent = '1';
+    dot2.className = 'step-dot pending'; dot2.textContent = '2';
+    dot3.className = 'step-dot pending'; dot3.textContent = '3';
+    line1.style.width = '0%';
+    line2.style.width = '0%';
+  } else if (step === 2) {
+    p2.style.display = '';
+    dot1.className = 'step-dot done'; dot1.textContent = '✓';
+    dot2.className = 'step-dot active'; dot2.textContent = '2';
+    dot3.className = 'step-dot pending'; dot3.textContent = '3';
+    line1.style.width = '100%';
+    line2.style.width = '0%';
+    renderSummary();
+    setTimeout(animateMoraBars, 200);
+  } else {
+    p3.style.display = '';
+    dot1.className = 'step-dot done'; dot1.textContent = '✓';
+    dot2.className = 'step-dot done'; dot2.textContent = '✓';
+    dot3.className = 'step-dot active'; dot3.textContent = '3';
+    line1.style.width = '100%';
+    line2.style.width = '100%';
+    renderLogisticsSummary();
+  }
+}
+
+function goToSummary() {
+  if (cartTotal() === 0) return;
+  renderAdelantarStep(2);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToLogistics() {
+  if (cartTotal() === 0) return;
+  state.logistics = 'envio';
+  renderAdelantarStep(3);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToStep1() {
+  renderAdelantarStep(1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToStep2() {
+  renderAdelantarStep(2);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── Logistics ────────────────────────────────────────────── */
+function selectLogistics(option) {
+  state.logistics = option;
+  document.getElementById('logi-envio').classList.toggle('selected', option === 'envio');
+  document.getElementById('logi-deposito').classList.toggle('selected', option === 'deposito');
+  renderLogisticsSummary();
+}
+
+function renderLogisticsSummary() {
+  const base = cartTotal();
+  const depositoCost = Math.round(base * 0.02);
+  const isDeposito = state.logistics === 'deposito';
+  const finalTotal = base + (isDeposito ? depositoCost : 0);
+
+  const infoEl = document.getElementById('deposito-cost-info');
+  infoEl.style.display = isDeposito ? '' : 'none';
+  if (isDeposito) {
+    infoEl.innerHTML = `⚠️ <strong>Costo de almacenamiento:</strong> $${depositoCost.toLocaleString('es-AR')} mensuales (2% sobre $${base.toLocaleString('es-AR')}). Se acumula mientras el stock esté en depósito.`;
+  }
+
+  const card = document.getElementById('logistics-total-card');
+  card.innerHTML = `
+    <div class="logistics-total-row">
+      <span class="logistics-total-label">Subtotal productos</span>
+      <span class="logistics-total-value">$${base.toLocaleString('es-AR')}</span>
+    </div>
+    <div class="logistics-total-row">
+      <span class="logistics-total-label">Logística</span>
+      <span class="logistics-total-value ${isDeposito ? 'extra' : ''}">${isDeposito ? '+$' + depositoCost.toLocaleString('es-AR') + ' / mes' : 'Gratis'}</span>
+    </div>
+    <hr class="logistics-total-divider">
+    <div class="logistics-total-row">
+      <span style="font-size:15px;font-weight:700;color:var(--neutral-900)">Total adelanto</span>
+      <span class="logistics-total-value final">$${finalTotal.toLocaleString('es-AR')}</span>
+    </div>
+  `;
+}
+
+function animateMoraBars() {
+  document.querySelectorAll('.mora-bar-fill').forEach(bar => {
+    const target = bar.getAttribute('data-width');
+    bar.style.width = target;
+  });
+}
+
+/* ─── Summary ─────────────────────────────────────────────── */
+function renderSummary() {
+  const total = cartTotal();
+  document.getElementById('summary-total-amount').textContent =
+    '$' + total.toLocaleString('es-AR');
+
+  const list = document.getElementById('summary-items-list');
+  const selected = PRODUCTS.filter(p => (state.cart[p.id] || 0) > 0);
+  list.innerHTML = selected.map(p => {
+    const qty     = state.cart[p.id];
+    const subtotal = qty * p.price;
+    return `
+      <div class="summary-item">
+        <div class="summary-item-left">
+          <div class="summary-item-emoji">${p.emoji}</div>
+          <div>
+            <div class="summary-item-name">${p.name}</div>
+            <div class="summary-item-qty">x${qty} · $${p.price.toLocaleString('es-AR')} c/u</div>
+          </div>
+        </div>
+        <div class="summary-item-subtotal">$${subtotal.toLocaleString('es-AR')}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ─── Confirm advance ─────────────────────────────────────── */
+function playBuyingSound() {
+  const audio = new Audio('/assets/buying-sound-effect.mp3');
+  audio.play().catch(() => {});
+}
+
+async function confirmAdelanto() {
+  const btn = document.querySelector('#paso3 .btn-confirm');
+  btn.disabled = true;
+  btn.textContent = 'Confirmando...';
+
+  try {
+    const advance = await apiFetch(`/api/businesses/${state.biz.id}/advances`, {
+      method: 'POST',
+      body: JSON.stringify({ cart: state.cart, logistics: state.logistics }),
+    });
+
+    state.stockItems.push(advance);
+    state.cart = {};
+    state.logistics = 'envio';
+
+    playBuyingSound();
+
+    const isDeposito = advance.logistics === 'deposito';
+    const logMsg = isDeposito
+      ? 'Tu stock queda guardado en nuestro depósito. Retirá cuando lo necesitás.'
+      : 'Tu stock llega a tu negocio en 24hs.';
+    document.getElementById('overlay-msg').textContent =
+      `$${advance.total.toLocaleString('es-AR')} confirmado. ${logMsg} Vencimiento: ${advance.dueDate}.`;
+    document.getElementById('overlay-success').classList.add('show');
+  } catch (err) {
+    alert('Error al confirmar adelanto: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmar adelanto';
+  }
+}
+
+function closeOverlay() {
+  document.getElementById('overlay-success').classList.remove('show');
+  showView('mistock');
+}
+
+/* ─── Mi Stock ────────────────────────────────────────────── */
+function badgeHtml(status) {
+  const map = {
+    ok:     ['badge-ok',     '✓ Al día'],
+    warn:   ['badge-warn',   '⚠ Por vencer'],
+    danger: ['badge-danger', '✗ Vencido'],
+    paid:   ['badge-paid',   '✓ Pagado'],
+  };
+  const [cls, label] = map[status] || map['ok'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+async function renderMiStock() {
+  if (!state.biz.id) return;
+  try {
+    await loadAdvances();
+    renderMiStockUI();
+  } catch (err) {
+    console.error('MiStock load error:', err);
+  }
+}
+
+function renderMiStockUI() {
+  const list      = document.getElementById('stock-items-list');
+  const debtTotal = state.stockItems.filter(e => e.status !== 'paid').reduce((s, e) => s + e.total, 0);
+  const debtEl    = document.getElementById('stock-debt-total');
+
+  if (debtTotal === 0) {
+    debtEl.className   = 'debt-amount zero';
+    debtEl.textContent = '$0';
+    document.getElementById('stock-debt-sub').textContent = 'Sin deuda activa. ¡Excelente!';
+    document.getElementById('stock-debt-breakdown').innerHTML = '';
+  } else {
+    debtEl.className   = 'debt-amount';
+    debtEl.textContent = '$' + debtTotal.toLocaleString('es-AR');
+    document.getElementById('stock-debt-sub').textContent = 'En adelantos activos';
+    const counts = { ok: 0, warn: 0, danger: 0 };
+    state.stockItems.forEach(e => counts[e.status]++);
+    let breakdown = '';
+    if (counts.ok     > 0) breakdown += `<span class="debt-pill ok">✓ Al día: ${counts.ok}</span>`;
+    if (counts.warn   > 0) breakdown += `<span class="debt-pill warn">⚠ Por vencer: ${counts.warn}</span>`;
+    if (counts.danger > 0) breakdown += `<span class="debt-pill danger">✗ Vencido: ${counts.danger}</span>`;
+    document.getElementById('stock-debt-breakdown').innerHTML = breakdown;
+  }
+
+  if (state.stockItems.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <div class="empty-title">No hay stock adelantado</div>
+        <div class="empty-sub">Tu primer adelanto aparecerá aquí.</div>
+        <button class="btn-outline-green" onclick="showView('adelantar')">
+          <span>➕</span> Adelantar stock
+        </button>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = state.stockItems.slice().reverse().map(entry => {
+    const productSummary = entry.items.length === 1
+      ? `${entry.items[0].emoji} ${entry.items[0].name}`
+      : `${entry.items[0].emoji} ${entry.items[0].name} y ${entry.items.length - 1} más`;
+    const totalQty = entry.items.reduce((s, i) => s + i.qty, 0);
+    return `
+      <div class="stock-item">
+        <div class="stock-item-emoji">${entry.items[0].emoji}</div>
+        <div>
+          <div class="stock-item-name">${productSummary}</div>
+          <div class="stock-item-meta">
+            <span>📅 Adelantado: ${entry.adelantoDate}</span>
+            <span>⏰ Vence: ${entry.dueDate}</span>
+            <span>📦 ${totalQty} unidades</span>
+            <span>${entry.logistics === 'deposito' ? '🏭 En depósito StockYa' : '🚚 Enviado a domicilio'}</span>
+          </div>
+          ${entry.items.length > 1 ? `
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">
+              ${entry.items.map(i => `
+                <div style="background:var(--neutral-100);border-radius:4px;padding:3px 8px;font-size:12px;color:var(--neutral-600)">
+                  ${i.emoji} ${i.name} ×${i.qty}
+                </div>`).join('')}
+            </div>` : ''}
+        </div>
+        <div class="stock-item-right">
+          <div class="stock-item-amount">$${entry.total.toLocaleString('es-AR')}</div>
+          ${badgeHtml(entry.status)}
+        </div>
+        ${entry.status !== 'paid' ? `
+        <button class="btn-pay-advance ${entry.status}" onclick="openPaymentSheet('${entry.id}')">
+          💳 Pagar $${entry.total.toLocaleString('es-AR')}
+        </button>` : ''}
+      </div>`;
+  }).join('');
+}
+
+/* ─── Payment sheet ───────────────────────────────────────── */
+let paymentTargetId = null;
+
+function openPaymentSheet(entryId) {
+  paymentTargetId = entryId;
+  const entry = state.stockItems.find(e => e.id === entryId);
+  if (!entry) return;
+
+  const summary = entry.items.length === 1
+    ? `${entry.items[0].emoji} ${entry.items[0].name}`
+    : `${entry.items[0].emoji} ${entry.items[0].name} y ${entry.items.length - 1} más`;
+
+  document.getElementById('payment-product-pill').innerHTML =
+    `<div class="sheet-product-pill">📦 ${summary} · Vence ${entry.dueDate}</div>`;
+
+  const overdueEl = document.getElementById('payment-overdue-note');
+  overdueEl.innerHTML = entry.status === 'danger'
+    ? `<div class="payment-overdue-note">⚠️ <strong>Adelanto vencido.</strong> Regularizarlo libera tu línea de crédito y evita cargos adicionales.</div>`
+    : '';
+
+  const base = entry.items.reduce((s, i) => s + i.price * i.qty, 0);
+  let breakdownHTML = entry.items.map(i => `
+    <div class="payment-row">
+      <span class="payment-row-label">${i.emoji} ${i.name} ×${i.qty}</span>
+      <span class="payment-row-value">$${(i.price * i.qty).toLocaleString('es-AR')}</span>
+    </div>`).join('');
+
+  if (entry.depositoCost > 0) {
+    breakdownHTML += `
+    <div class="payment-row">
+      <span class="payment-row-label">🏭 Almacenamiento</span>
+      <span class="payment-row-value">$${entry.depositoCost.toLocaleString('es-AR')}</span>
+    </div>`;
+  }
+
+  breakdownHTML += `
+    <hr class="payment-divider">
+    <div class="payment-row">
+      <span class="payment-total-label">Total a pagar</span>
+      <span class="payment-total-value">$${entry.total.toLocaleString('es-AR')}</span>
+    </div>`;
+
+  document.getElementById('payment-breakdown').innerHTML = breakdownHTML;
+  document.getElementById('payment-sheet').classList.add('show');
+}
+
+function closePaymentSheet() {
+  document.getElementById('payment-sheet').classList.remove('show');
+  paymentTargetId = null;
+}
+
+async function confirmPayment() {
+  const btn = document.getElementById('btn-confirm-payment');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  try {
+    const updated = await apiFetch(`/api/advances/${paymentTargetId}/pay`, { method: 'POST' });
+    const idx = state.stockItems.findIndex(e => e.id === updated.id);
+    if (idx !== -1) state.stockItems[idx] = updated;
+
+    closePaymentSheet();
+    showToast('✅ Pago registrado. ¡Tu línea de crédito fue liberada!');
+    renderMiStockUI();
+  } catch (err) {
+    alert('Error al procesar el pago: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>Confirmar pago</span><span>→</span>';
+  }
+}
+
+/* ─── Deposito & Branches ─────────────────────────────────── */
+let deliveryTargetId = null;
+let selectedBranchId = null;
+
+async function renderDeposito() {
+  if (!state.biz.id) return;
+  try {
+    await loadAdvances();
+    renderDepositoUI();
+  } catch (err) {
+    console.error('Deposito load error:', err);
+  }
+}
+
+function renderDepositoUI() {
+  const nameEl   = document.getElementById('deposito-header-name');
+  const avatarEl = document.getElementById('deposito-avatar');
+  if (nameEl)   nameEl.textContent = state.biz.name || 'Mi Negocio';
+  if (avatarEl) avatarEl.textContent = (state.biz.name || 'MN')
+    .split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+  const items     = state.stockItems.filter(e => e.logistics === 'deposito');
+  const summaryEl = document.getElementById('deposito-summary-section');
+  const listEl    = document.getElementById('deposito-items-list');
+
+  if (items.length === 0) {
+    summaryEl.innerHTML = '';
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🏭</div>
+        <div class="empty-title">No tenés stock en depósito</div>
+        <div class="empty-sub">Al adelantar stock, elegí "Guardar en depósito StockYa" y aparece acá.</div>
+        <button class="btn-outline-green" onclick="showView('adelantar')">
+          <span>➕</span> Adelantar con depósito
+        </button>
+      </div>`;
+    return;
+  }
+
+  const totalValue  = items.reduce((s, e) => s + e.total, 0);
+  const totalUnits  = items.reduce((s, e) => s + e.items.reduce((a, i) => a + i.qty, 0), 0);
+  const monthlyCost = items.reduce((s, e) => s + (e.depositoCost || Math.round(e.total * 0.02)), 0);
+  const inTransito  = items.filter(e => e.deliveryStatus === 'en_transito').length;
+
+  summaryEl.innerHTML = `
+    <div class="deposito-summary">
+      <div class="deposito-eyebrow">Stock en almacén StockYa</div>
+      <div class="deposito-amount">$${totalValue.toLocaleString('es-AR')}</div>
+      <div class="deposito-sub">${totalUnits} unidades · ${items.length} lote${items.length !== 1 ? 's' : ''}</div>
+      <div class="deposito-chips">
+        <div class="deposito-chip">🌡️ Almacén climatizado</div>
+        <div class="deposito-chip">🔒 Stock asegurado</div>
+        <div class="deposito-chip">💰 $${monthlyCost.toLocaleString('es-AR')}/mes</div>
+        ${inTransito ? `<div class="deposito-chip">🚚 ${inTransito} envío${inTransito > 1 ? 's' : ''} en tránsito</div>` : ''}
+      </div>
+    </div>`;
+
+  listEl.innerHTML = items.map(entry => {
+    const totalQty  = entry.items.reduce((s, i) => s + i.qty, 0);
+    const cost      = entry.depositoCost || Math.round(entry.total * 0.02);
+    const isTransit = entry.deliveryStatus === 'en_transito';
+    const summary   = entry.items.length === 1
+      ? `${entry.items[0].emoji} ${entry.items[0].name}`
+      : `${entry.items[0].emoji} ${entry.items[0].name} y ${entry.items.length - 1} más`;
+
+    return `
+      <div class="deposito-item">
+        <div class="deposito-item-header">
+          <div class="deposito-item-left">
+            <div class="deposito-item-emoji">${entry.items[0].emoji}</div>
+            <div>
+              <div class="deposito-item-name">${summary}</div>
+              <div class="deposito-item-meta">📅 Ingresó ${entry.adelantoDate} · 📦 ${totalQty} unidades</div>
+            </div>
+          </div>
+          <div>
+            <div class="deposito-item-amount">$${entry.total.toLocaleString('es-AR')}</div>
+            <div class="deposito-item-cost">$${cost.toLocaleString('es-AR')}/mes</div>
+          </div>
+        </div>
+        <div class="deposito-products">
+          ${entry.items.map(i => `<div class="deposito-product-chip">${i.emoji} ${i.name} ×${i.qty}</div>`).join('')}
+        </div>
+        ${isTransit
+          ? `<div class="btn-pedir-envio en-transito">🚚 En tránsito → ${entry.targetSucursal}</div>`
+          : `<button class="btn-pedir-envio" onclick="openDeliverySheet('${entry.id}')">📤 Pedir envío a sucursal</button>`}
+      </div>`;
+  }).join('');
+}
+
+function openDeliverySheet(entryId) {
+  deliveryTargetId = entryId;
+  selectedBranchId = SUCURSALES[0]?.id || null;
+
+  const entry = state.stockItems.find(e => e.id === entryId);
+  if (!entry) return;
+
+  const summary  = entry.items.length === 1
+    ? `${entry.items[0].emoji} ${entry.items[0].name}`
+    : `${entry.items[0].emoji} ${entry.items[0].name} y ${entry.items.length - 1} más`;
+  const totalQty = entry.items.reduce((s, i) => s + i.qty, 0);
+
+  document.getElementById('sheet-product-pill').innerHTML =
+    `<div class="sheet-product-pill">📦 ${summary} · ${totalQty} unidades · $${entry.total.toLocaleString('es-AR')}</div>`;
+
+  renderBranchList();
+  document.getElementById('delivery-sheet').classList.add('show');
+}
+
+function closeDeliverySheet() {
+  document.getElementById('delivery-sheet').classList.remove('show');
+  deliveryTargetId = null;
+}
+
+function renderBranchList() {
+  document.getElementById('sucursal-list').innerHTML = SUCURSALES.map(s => `
+    <div class="sucursal-card ${s.id === selectedBranchId ? 'selected' : ''}" onclick="selectBranch('${s.id}')">
+      <div class="sucursal-emoji">${s.emoji}</div>
+      <div>
+        <div class="sucursal-name">${s.name}</div>
+        <div class="sucursal-address">${s.address}</div>
+      </div>
+      <div class="sucursal-radio"></div>
+    </div>`).join('');
+}
+
+function selectBranch(id) {
+  selectedBranchId = id;
+  renderBranchList();
+}
+
+async function confirmDelivery() {
+  if (!deliveryTargetId || !selectedBranchId) return;
+  const btn = document.querySelector('#delivery-sheet .btn-confirm');
+  btn.disabled = true;
+
+  try {
+    const updated = await apiFetch(`/api/advances/${deliveryTargetId}/delivery`, {
+      method: 'POST',
+      body: JSON.stringify({ sucursalId: selectedBranchId }),
+    });
+    const idx = state.stockItems.findIndex(e => e.id === updated.id);
+    if (idx !== -1) state.stockItems[idx] = updated;
+
+    closeDeliverySheet();
+    showToast(`🚚 Envío confirmado → ${updated.targetSucursal}`);
+    renderDepositoUI();
+  } catch (err) {
+    alert('Error al confirmar envío: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ─── Toast helper ────────────────────────────────────────── */
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+/* ─── Init ────────────────────────────────────────────────── */
+(async function init() {
+  document.querySelectorAll('.mora-bar-fill').forEach(bar => { bar.style.width = '0%'; });
+
+  try {
+    const [products, providers, branches] = await Promise.all([
+      apiFetch('/api/products'),
+      apiFetch('/api/providers'),
+      apiFetch('/api/branches'),
+    ]);
+    PRODUCTS   = products;
+    PROVIDERS  = providers;
+    SUCURSALES = branches;
+  } catch (err) {
+    console.warn('Could not reach backend, running in offline mode:', err.message);
+  }
+
+  showView('landing');
+})();
+</script>
+</body>
+</html>

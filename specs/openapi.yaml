@@ -1,0 +1,615 @@
+openapi: 3.0.3
+info:
+  title: StockYa API
+  description: |
+    B2B credit platform for small retail stores (almacenes, kioscos) in Argentina.
+    Operators request stock advances against a credit limit; repayment is due in 30 days.
+    Inventory can be held in a StockYa warehouse or shipped directly to the store.
+  version: 0.1.0
+  contact:
+    name: StockYa
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local dev
+
+tags:
+  - name: businesses
+    description: Store registration and credit profile
+  - name: catalog
+    description: Products and providers
+  - name: advances
+    description: Credit advance lifecycle
+  - name: ml
+    description: ML-powered scoring and forecasting (deferred)
+
+paths:
+
+  # ── Businesses ──────────────────────────────────────────────────
+
+  /businesses:
+    post:
+      tags: [businesses]
+      summary: Register a new business
+      operationId: createBusiness
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBusinessReq'
+            example:
+              name: "Almacén Don Roberto"
+              cuit: "20-12345678-9"
+              phone: "1154321234"
+              address: "Av. Rivadavia 4500, CABA"
+              type: almacen
+      responses:
+        '201':
+          description: Business created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /businesses/{id}:
+    get:
+      tags: [businesses]
+      summary: Get business by ID
+      operationId: getBusiness
+      parameters:
+        - $ref: '#/components/parameters/businessId'
+      responses:
+        '200':
+          description: Business record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /businesses/{id}/dashboard:
+    get:
+      tags: [businesses]
+      summary: Get dashboard stats for a business
+      operationId: getDashboard
+      parameters:
+        - $ref: '#/components/parameters/businessId'
+      responses:
+        '200':
+          description: Aggregated stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardStats'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /businesses/{id}/advances:
+    get:
+      tags: [advances]
+      summary: List all advances for a business
+      operationId: listAdvances
+      parameters:
+        - $ref: '#/components/parameters/businessId'
+      responses:
+        '200':
+          description: Array of advances (empty array if none)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Advance'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [advances]
+      summary: Create a stock advance (draw from credit line)
+      operationId: createAdvance
+      parameters:
+        - $ref: '#/components/parameters/businessId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdvanceReq'
+            example:
+              cart:
+                cc225: 10
+                arr: 5
+              logistics: deposito
+      responses:
+        '201':
+          description: Advance created; credit drawn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advance'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Catalog ──────────────────────────────────────────────────────
+
+  /products:
+    get:
+      tags: [catalog]
+      summary: List products, optionally filtered by provider
+      operationId: listProducts
+      parameters:
+        - name: provider
+          in: query
+          description: Provider ID to filter by. Omit or use "todos" for all.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Array of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /providers:
+    get:
+      tags: [catalog]
+      summary: List all providers
+      operationId: listProviders
+      responses:
+        '200':
+          description: Array of providers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Provider'
+
+  /branches:
+    get:
+      tags: [catalog]
+      summary: List StockYa delivery branches
+      operationId: listBranches
+      responses:
+        '200':
+          description: Array of branches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+
+  # ── Advance actions ──────────────────────────────────────────────
+
+  /advances/{id}/pay:
+    post:
+      tags: [advances]
+      summary: Mark an advance as paid
+      operationId: payAdvance
+      parameters:
+        - $ref: '#/components/parameters/advanceId'
+      responses:
+        '200':
+          description: Updated advance with status "paid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advance'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /advances/{id}/delivery:
+    post:
+      tags: [advances]
+      summary: Request physical delivery for a warehouse-held advance
+      operationId: requestDelivery
+      parameters:
+        - $ref: '#/components/parameters/advanceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryReq'
+            example:
+              sucursalId: palermo
+      responses:
+        '200':
+          description: Advance with deliveryStatus set to en_transito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Advance'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ── ML (deferred) ────────────────────────────────────────────────
+
+  /ml/credit-score:
+    post:
+      tags: [ml]
+      summary: Score a business's creditworthiness
+      description: |
+        **Status: deferred — returns stub response.**
+        Will use behavioral signals (purchase frequency, repayment history,
+        AFIP category) to recommend a credit limit.
+      operationId: creditScore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [businessId]
+              properties:
+                businessId:
+                  type: string
+      responses:
+        '200':
+          description: Credit score result (stub until implemented)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditScoreResult'
+
+  /ml/demand-forecast:
+    post:
+      tags: [ml]
+      summary: Forecast reorder quantities for the next 30 days
+      description: |
+        **Status: deferred — returns stub response.**
+        Will predict per-product demand based on purchase history across the network.
+      operationId: demandForecast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [businessId, productIds]
+              properties:
+                businessId:
+                  type: string
+                productIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Demand forecast (stub until implemented)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemandForecastResult'
+
+  /ml/overdue-risk:
+    post:
+      tags: [ml]
+      summary: Estimate probability of default for an advance
+      description: |
+        **Status: deferred — returns stub response.**
+        Will flag advances at risk so operators can intervene early.
+      operationId: overdueRisk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [advanceId]
+              properties:
+                advanceId:
+                  type: string
+      responses:
+        '200':
+          description: Overdue risk estimate (stub until implemented)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverdueRiskResult'
+
+components:
+
+  parameters:
+    businessId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    advanceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Validation error or business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+
+    BusinessType:
+      type: string
+      enum: [almacen, kiosco, verduleria, otro]
+
+    Business:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        cuit:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        type:
+          $ref: '#/components/schemas/BusinessType'
+        creditLimit:
+          type: integer
+          format: int64
+          description: Maximum credit line in ARS cents
+        creditUsed:
+          type: integer
+          format: int64
+          description: Currently drawn credit in ARS cents
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateBusinessReq:
+      type: object
+      required: [name, cuit]
+      properties:
+        name:
+          type: string
+        cuit:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        type:
+          $ref: '#/components/schemas/BusinessType'
+
+    LogisticsType:
+      type: string
+      enum: [envio, deposito]
+      description: |
+        - `envio`: stock shipped directly to the store on advance creation
+        - `deposito`: stock held at a StockYa warehouse; delivery requested separately
+
+    AdvanceStatus:
+      type: string
+      enum: [ok, warn, danger, paid]
+      description: |
+        - `ok`: within due date
+        - `warn`: approaching due date
+        - `danger`: overdue
+        - `paid`: settled
+
+    DeliveryStatus:
+      type: string
+      enum: ["", en_transito]
+      description: Empty string means no delivery requested yet.
+
+    AdvanceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Product ID
+        name:
+          type: string
+        emoji:
+          type: string
+        qty:
+          type: integer
+        price:
+          type: integer
+          format: int64
+          description: Unit price at time of advance creation (ARS cents)
+
+    Advance:
+      type: object
+      properties:
+        id:
+          type: string
+        businessId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdvanceItem'
+        total:
+          type: integer
+          format: int64
+          description: Total charge in ARS cents (product sum + storage cost)
+        logistics:
+          $ref: '#/components/schemas/LogisticsType'
+        depositoCost:
+          type: integer
+          format: int64
+          description: Storage fee (2% of product total when logistics=deposito)
+        adelantoDate:
+          type: string
+          description: Creation date in DD/MM/YYYY format
+        dueDate:
+          type: string
+          description: Payment due date (adelantoDate + 30 days) in DD/MM/YYYY format
+        status:
+          $ref: '#/components/schemas/AdvanceStatus'
+        deliveryStatus:
+          $ref: '#/components/schemas/DeliveryStatus'
+        targetSucursal:
+          type: string
+          description: Branch name when delivery is requested
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateAdvanceReq:
+      type: object
+      required: [cart, logistics]
+      properties:
+        cart:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Map of productId → quantity
+        logistics:
+          $ref: '#/components/schemas/LogisticsType'
+
+    DeliveryReq:
+      type: object
+      required: [sucursalId]
+      properties:
+        sucursalId:
+          type: string
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [icon, img, text]
+          description: Determines how to render the provider logo in the UI
+        src:
+          type: string
+          description: Image URL (when type=img)
+        text:
+          type: string
+          description: Display text (when type=text)
+        badge:
+          type: string
+          description: Optional overlay badge (e.g. "新" for Chinese supermarket)
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: integer
+          format: int64
+          description: Unit price in ARS cents
+        emoji:
+          type: string
+        providers:
+          type: array
+          items:
+            type: string
+          description: Provider IDs that carry this product
+
+    Branch:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        emoji:
+          type: string
+
+    DashboardStats:
+      type: object
+      properties:
+        business:
+          $ref: '#/components/schemas/Business'
+        activeProducts:
+          type: integer
+          description: Total product units in active (unpaid) advances
+        totalAdelantos:
+          type: integer
+          description: All-time advance count
+        totalPagados:
+          type: integer
+          description: Paid advance count
+
+    CreditScoreResult:
+      type: object
+      properties:
+        score:
+          type: number
+          description: 0–100 creditworthiness score
+        riskLevel:
+          type: string
+          enum: [low, medium, high, pending]
+        creditLimitRecommendation:
+          type: integer
+          format: int64
+          description: Recommended credit limit in ARS cents
+        message:
+          type: string
+
+    DemandForecastResult:
+      type: object
+      properties:
+        forecasts:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+              predictedQty:
+                type: integer
+              confidence:
+                type: number
+        windowDays:
+          type: integer
+          default: 30
+        message:
+          type: string
+
+    OverdueRiskResult:
+      type: object
+      properties:
+        defaultProbability:
+          type: number
+          minimum: 0
+          maximum: 1
+        daysAtRisk:
+          type: integer
+        riskLevel:
+          type: string
+          enum: [low, medium, high, pending]
+        message:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
