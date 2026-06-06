@@ -20,10 +20,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	store := newStore()
-	h := &handlers{store: store}
+	h := &handlers{store: store, bcra: newBCRAClient()}
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("POST /api/auth/login", h.login)
 	mux.HandleFunc("POST /api/businesses", h.createBusiness)
 	mux.HandleFunc("GET /api/businesses/{id}", h.getBusiness)
 	mux.HandleFunc("GET /api/businesses/{id}/dashboard", h.getDashboard)

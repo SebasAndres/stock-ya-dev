@@ -94,6 +94,26 @@ func (s *Store) getBusiness(id string) (*Business, bool) {
 	return b, ok
 }
 
+func (s *Store) setCreditLimit(bizID string, limit int64) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if b, ok := s.businesses[bizID]; ok {
+		b.CreditLimit = limit
+	}
+}
+
+func (s *Store) getByCUIT(cuit string) (*Business, bool) {
+	normalized := normalizeCUIT(cuit)
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for _, b := range s.businesses {
+		if normalizeCUIT(b.CUIT) == normalized {
+			return b, true
+		}
+	}
+	return nil, false
+}
+
 func (s *Store) listProductsByProvider(providerID string) []Product {
 	if providerID == "" || providerID == "todos" {
 		return s.products

@@ -362,6 +362,48 @@
       gap: 14px;
     }
 
+    /* Auth tabs inside register card */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--neutral-200);
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-400);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .auth-tab.active {
+      color: var(--green-500);
+      border-bottom-color: var(--green-500);
+    }
+
+    /* BCRA check banner */
+    .bcra-banner {
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .bcra-banner.ok    { background: var(--green-50); border: 1px solid #b6e8cb; }
+    .bcra-banner.warn  { background: var(--amber-100); border: 1px solid #f0d070; }
+    .bcra-banner.block { background: var(--red-100); border: 1px solid #f9c4c4; }
+    .bcra-banner.info  { background: var(--neutral-100); border: 1px solid var(--neutral-200); }
+    .bcra-banner-icon { font-size: 20px; line-height: 1; }
+    .bcra-banner-body strong { display: block; font-weight: 600; margin-bottom: 2px; }
+    .bcra-banner-body span   { color: var(--neutral-600); }
+
     @media (max-width: 480px) {
       .form-grid { grid-template-columns: 1fr; }
     }
@@ -2512,6 +2554,14 @@
       <!-- Right: form -->
       <div>
         <div class="register-card">
+          <!-- Tabs -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-register" onclick="switchAuthTab('register')">Registrarme</button>
+            <button class="auth-tab" id="tab-login" onclick="switchAuthTab('login')">Ya tengo cuenta</button>
+          </div>
+
+          <!-- Register panel -->
+          <div id="panel-register">
           <div class="form-title">Registrá tu negocio</div>
           <div class="form-subtitle">Gratis. Sin letra chica. En 2 minutos.</div>
 
@@ -2578,6 +2628,21 @@
               Al registrarte aceptás los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.
             </div>
           </form>
+          </div><!-- /panel-register -->
+
+          <!-- Login panel -->
+          <div id="panel-login" style="display:none">
+            <div class="form-title">Ingresá a tu cuenta</div>
+            <div class="form-subtitle">Verificamos tu perfil en el BCRA al ingresar.</div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+              <div class="form-group full" style="margin-bottom:20px">
+                <label class="form-label" for="login-cuit">CUIT del negocio</label>
+                <input class="form-input" id="login-cuit" type="text" placeholder="20-12345678-9" required />
+              </div>
+              <button type="submit" class="btn-primary" id="login-btn">Ingresar</button>
+            </form>
+          </div><!-- /panel-login -->
+
         </div>
       </div>
     </div>
@@ -2784,6 +2849,9 @@
           <div class="dash-eyebrow" id="dash-day-greeting">Buen día</div>
           <div class="dash-title" id="dash-biz-name">Almacén Don Carlos</div>
         </div>
+
+        <!-- BCRA check banner (visible only after login) -->
+        <div id="bcra-banner" style="display:none"></div>
 
         <!-- Credit card -->
         <div class="credit-card">
@@ -3458,6 +3526,79 @@ async function loadAdvances() {
 }
 
 /* ─── Register ────────────────────────────────────────────── */
+/* ─── Auth tab toggle ─────────────────────────────────────── */
+function switchAuthTab(tab) {
+  document.getElementById('panel-register').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('panel-login').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+}
+
+/* ─── BCRA banner ─────────────────────────────────────────── */
+function renderBCRABanner(check) {
+  const el = document.getElementById('bcra-banner');
+  if (!el) return;
+
+  const usdText = check.tipoCambioUSD
+    ? `Tipo de cambio USD referencia: $${check.tipoCambioUSD.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+    : '';
+
+  let cls, icon, title, sub;
+
+  if (!check.deudorDisponible) {
+    cls = 'info'; icon = '🏦';
+    title = 'Verificación BCRA';
+    sub = 'No se encontraron antecedentes en el sistema financiero.' + (usdText ? ' ' + usdText : '');
+  } else if (check.peorSituacion <= 1) {
+    cls = 'ok'; icon = '✅';
+    title = 'Perfil crediticio normal (BCRA)';
+    sub = `Sin deudas irregulares en el sistema financiero.${usdText ? ' · ' + usdText : ''}`;
+  } else if (check.peorSituacion === 2) {
+    cls = 'warn'; icon = '⚠️';
+    title = 'Seguimiento especial (BCRA)';
+    sub = `Período: ${check.ultimoPeriodo}. Deuda reportada: $${check.deudaTotal.toLocaleString('es-AR')} ARS.${usdText ? ' · ' + usdText : ''}`;
+  } else {
+    cls = 'block'; icon = '🚫';
+    title = `Situación irregular en el sistema financiero (BCRA — sit. ${check.peorSituacion})`;
+    sub = `Período: ${check.ultimoPeriodo}. Deuda reportada: $${check.deudaTotal.toLocaleString('es-AR')} ARS. Tu línea de crédito puede estar restringida.`;
+  }
+
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="bcra-banner ${cls}">
+      <div class="bcra-banner-icon">${icon}</div>
+      <div class="bcra-banner-body">
+        <strong>${title}</strong>
+        <span>${sub}</span>
+      </div>
+    </div>`;
+}
+
+/* ─── Login ───────────────────────────────────────────────── */
+async function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Verificando en BCRA...';
+
+  try {
+    const res = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ cuit: document.getElementById('login-cuit').value.trim() }),
+    });
+    state.biz = { ...res.business };
+    updateBizUI(res.business.name);
+    showView('dashboard');
+    renderBCRABanner(res.bcraCheck);
+    renderDashboard();
+  } catch (err) {
+    alert('Error al ingresar: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ingresar';
+  }
+}
+
 async function handleRegister(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type=submit]');

@@ -144,3 +144,23 @@ type CreateAdvanceReq struct {
 type DeliveryReq struct {
 	BranchID string `json:"sucursalId"`
 }
+
+type LoginReq struct {
+	CUIT string `json:"cuit"`
+}
+
+// BCRACheck holds results from BCRA API checks run at login.
+type BCRACheck struct {
+	Timestamp        time.Time `json:"timestamp"`
+	DeudorDisponible bool      `json:"deudorDisponible"`
+	Denominacion     string    `json:"denominacion,omitempty"`
+	PeorSituacion    int       `json:"peorSituacion"` // 0=sin datos, 1=normal … 6=irrecuperable
+	DeudaTotal       int64     `json:"deudaTotal"`    // ARS
+	UltimoPeriodo    string    `json:"ultimoPeriodo,omitempty"`
+	TipoCambioUSD    float64   `json:"tipoCambioUSD"`
+}
+
+type LoginResponse struct {
+	Business  *Business `json:"business"`
+	BCRACheck BCRACheck `json:"bcraCheck"`
+}

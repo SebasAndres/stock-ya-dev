@@ -7,6 +7,7 @@ import (
 
 type handlers struct {
 	store *Store
+	bcra  *bcraClient
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -35,6 +36,11 @@ func (h *handlers) createBusiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	biz := h.store.createBusiness(req)
+
+	check := h.bcra.RunChecks(req.CUIT)
+	h.store.setCreditLimit(biz.ID, CreditLimitFromCheck(check))
+	biz.CreditLimit = CreditLimitFromCheck(check)
+
 	writeJSON(w, http.StatusCreated, biz)
 }
 
@@ -139,6 +145,28 @@ func (h *handlers) submitAssessment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, biz)
+}
+
+// POST /api/auth/login
+func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
+	var req LoginReq
+	if err := decode(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if req.CUIT == "" {
+		writeError(w, http.StatusBadRequest, "cuit is required")
+		return
+	}
+
+	biz, ok := h.store.getByCUIT(req.CUIT)
+	if !ok {
+		writeError(w, http.StatusNotFound, "negocio no encontrado — registrate primero")
+		return
+	}
+
+	check := h.bcra.RunChecks(req.CUIT)
+	writeJSON(w, http.StatusOK, LoginResponse{Business: biz, BCRACheck: check})
 }
 
 // POST /api/advances/{id}/delivery
