@@ -88,12 +88,49 @@ Buscamos **US$500.000** para un runway de 12 a 18 meses: construir el MVP, valid
 ## Correr localmente
 
 ```bash
-cd backend
-go run .
+just dev
 # Servidor en http://localhost:8080
 ```
 
 El frontend se sirve estático desde el mismo proceso en `/`.
+
+---
+
+## Probar la app
+
+Abrí `http://localhost:8080` en el navegador. El flujo completo es:
+
+### 1. Registro
+
+Completá el formulario con nombre del negocio, CUIT, teléfono, dirección y tipo (almacén o kiosco). Al enviar, el sistema corre una validación contra RENAPER y el Banco Central: si el CUIT está inhabilitado o tiene deudas en el BCRA, el acceso se bloquea o se muestra una advertencia con el límite de crédito reducido. Con un CUIT limpio, se asigna una línea de crédito inicial y entrás al dashboard.
+
+> Para testear el camino feliz usá el CUIT `20-12345678-9`. Para ver el bloqueo por deuda BCRA usá `20-00000000-0`.
+
+### 2. Dashboard
+
+Muestra el crédito disponible, los adelantos activos y el historial. Desde acá accedés a las tres secciones principales por la barra inferior:
+
+- **Adelantar** — pedir nuevo stock a crédito
+- **Mi Depósito** — mercadería guardada en sucursales StockYa
+- **Mi Stock** — adelantos activos y deuda pendiente
+
+### 3. Pedir un adelanto (3 pasos)
+
+**Paso 1 — Catálogo:** filtrá por mayorista (Coto, Diarco, Makro, Supermercado Chino) y sumá productos al carrito con los botones `+`/`−`. El total se actualiza en tiempo real en la barra superior.
+
+**Paso 2 — Logística:** elegí cómo recibir la mercadería:
+- *Envío directo* — llega al local, sin costo extra
+- *Depósito en sucursal* — quedá guardada en una sucursal StockYa hasta que la retirés; tiene un fee del 2%
+
+**Paso 3 — Confirmación:** revisá el resumen con el total a repagar (capital + fee + interés a 30 días) y confirmá. El adelanto queda registrado y el crédito usado se descuenta del disponible.
+
+### 4. Pedir entrega desde el depósito
+
+Si elegiste logística *depósito*, el stock queda retenido en la sucursal. Desde **Mi Depósito** podés ver las unidades guardadas por adelanto y tocar **Pedir envío** para elegir la sucursal de retiro y despachar la entrega.
+
+### 5. Pagar un adelanto
+
+Desde **Mi Stock** aparecen los adelantos activos con su estado (`al día`, `en riesgo`, `vencido`) y el monto a pagar. Tocá **Pagar adelanto** en cualquiera de ellos para registrar el repago: el crédito se libera y queda disponible para el próximo adelanto.
 
 ---
 
