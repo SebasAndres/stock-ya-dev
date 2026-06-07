@@ -4632,7 +4632,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ─── Config ──────────────────────────────────────────────── */
-const API = 'http://localhost:8080';
+const API = '';
+const DEMO_MODE = true;
 
 /* ─── State ───────────────────────────────────────────────── */
 const state = {
@@ -5062,7 +5063,63 @@ async function submitAssessment() {
 }
 
 /* ─── API helpers ─────────────────────────────────────────── */
+async function demoFetch(path, opts) {
+  const method = opts.method || 'GET';
+  const body   = opts.body ? JSON.parse(opts.body) : null;
+  await new Promise(r => setTimeout(r, 350));
+
+  if (method === 'POST' && path === '/api/businesses') {
+    return { id: 'demo-' + Date.now(), name: body.name, cuit: body.cuit,
+      phone: body.phone || '', type: body.type || 'almacen', address: '',
+      creditLimit: 140000, creditUsed: 0, assessmentStatus: 'pending' };
+  }
+  if (method === 'POST' && path === '/api/auth/login') {
+    return { business: { id: 'demo-' + Date.now(), name: 'Almacén Demo',
+      cuit: body.cuit, creditLimit: 140000, creditUsed: 0, assessmentStatus: 'approved' },
+      bcraCheck: { deudorDisponible: false } };
+  }
+  if (method === 'POST' && /\/assessment$/.test(path)) {
+    return { ...state.biz, assessmentStatus: 'approved', address: body.address || '' };
+  }
+  if (method === 'GET' && /\/dashboard$/.test(path)) {
+    const used = state.stockItems.filter(a => a.status !== 'paid').reduce((s, a) => s + a.total, 0);
+    return { business: { creditLimit: 140000, creditUsed: used },
+      activeProducts: state.stockItems.filter(a => a.status !== 'paid').reduce((s, a) => s + a.items.length, 0),
+      totalAdelantos: state.stockItems.length,
+      totalPagados: state.stockItems.filter(a => a.status === 'paid').length };
+  }
+  if (method === 'GET' && /\/advances$/.test(path)) return [...state.stockItems];
+  if (method === 'POST' && /\/advances$/.test(path)) {
+    const base = cartTotal();
+    const isDeposito = body.logistics === 'deposito';
+    const due = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const dueDate = due.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const items = Object.entries(body.cart).map(([pid, qty]) => {
+      const p = PRODUCTS.find(x => x.id === pid) || { id: pid, name: pid, price: 0, emoji: '📦' };
+      return { id: p.id, name: p.name, qty, price: p.price, emoji: p.emoji, image: p.image };
+    });
+    return { id: 'adv-' + Date.now(), businessId: state.biz.id, items,
+      total: base + (isDeposito ? Math.round(base * 0.02) : 0),
+      status: 'ok', logistics: body.logistics, deliveryStatus: '', dueDate,
+      createdAt: new Date().toISOString() };
+  }
+  if (method === 'POST' && /\/pay$/.test(path)) {
+    const id = path.split('/')[3];
+    const adv = state.stockItems.find(a => a.id === id);
+    if (adv) adv.status = 'paid';
+    return adv || {};
+  }
+  if (method === 'POST' && /\/delivery$/.test(path)) {
+    const id = path.split('/')[3];
+    const adv = state.stockItems.find(a => a.id === id);
+    if (adv) adv.deliveryStatus = 'en_transito';
+    return adv || {};
+  }
+  return {};
+}
+
 async function apiFetch(path, options = {}) {
+  if (DEMO_MODE) return demoFetch(path, options);
   const res = await fetch(API + path, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
