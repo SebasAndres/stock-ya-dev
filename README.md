@@ -70,7 +70,7 @@ Para escalar la red inicial, arrancamos desde comunidades ya formadas: iglesias,
 
 ## Fundraising
 
-Buscamos **US$500.000** para un runway de 12 a 18 meses: construir el MVP, validar el scoring social, originar los primeros microcréditos productivos, medir mora/repago y demostrar tracción en comunidades piloto.
+Buscamos financiamiento para un runway de 12 a 18 meses: construir el MVP, validar el scoring social, originar los primeros microcréditos productivos, medir mora/repago y demostrar tracción en comunidades piloto.
 
 ---
 
