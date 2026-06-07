@@ -1,42 +1,48 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 )
 
 type Store struct {
-	mu          sync.RWMutex
-	businesses  map[string]*Business
-	advances    map[string]*Advance
-	bizAdvances map[string][]string // businessID → []advanceID
-
-	products  []Product
-	providers []Provider
-	branches  []Branch
+	db *sql.DB
 }
 
-func newStore() *Store {
-	s := &Store{
-		businesses:  make(map[string]*Business),
-		advances:    make(map[string]*Advance),
-		bizAdvances: make(map[string][]string),
-	}
+func newStore(db *sql.DB) *Store {
+	s := &Store{db: db}
 	s.seedCatalog()
 	return s
 }
 
+func newID() string {
+	return fmt.Sprintf("%d%04d", time.Now().UnixMilli(), rand.Intn(10000))
+}
+
 func (s *Store) seedCatalog() {
-	s.providers = []Provider{
+	s.seedProviders()
+	s.seedProducts()
+	s.seedBranches()
+}
+
+func (s *Store) seedProviders() {
+	rows := []Provider{
 		{ID: "todos", Name: "Todos", Type: "icon"},
 		{ID: "coto", Name: "Coto", Type: "img", Src: "/assets/coto.png"},
 		{ID: "argenchino", Name: "Supermercado Chino", Type: "img", Src: "/assets/argenchino.jpeg", Badge: "新"},
 		{ID: "diarco", Name: "Diarco", Type: "text", Text: "DIARCO"},
 		{ID: "makro", Name: "Makro", Type: "text", Text: "MAKRO"},
 	}
-	s.products = []Product{
+	for _, p := range rows {
+		s.db.Exec(`INSERT IGNORE INTO providers (id,name,type,src,text_label,badge) VALUES (?,?,?,?,?,?)`,
+			p.ID, p.Name, p.Type, p.Src, p.Text, p.Badge)
+	}
+}
+
+func (s *Store) seedProducts() {
+	catalog := []Product{
 		{ID: "cc500x6", Name: "Coca-Cola 500ml (x6)", Price: 4200, Emoji: "🧃", Image: "/assets/coca.webp", Providers: []string{"coto", "makro"}},
 		{ID: "fid", Name: "Fideos Marolio 500g", Price: 1100, Emoji: "🍝", Image: "/assets/fideos.webp", Providers: []string{"argenchino", "diarco", "makro"}},
 		{ID: "arr", Name: "Arroz Gallo Oro 1kg", Price: 1400, Emoji: "🍚", Image: "/assets/arroz.webp", Providers: []string{"argenchino", "diarco"}},
@@ -45,117 +51,201 @@ func (s *Store) seedCatalog() {
 		{ID: "yer", Name: "Yerba Playadito 500g", Price: 1800, Emoji: "🧉", Providers: []string{"argenchino", "diarco"}},
 		{ID: "azu", Name: "Azúcar Ledesma 1kg", Price: 950, Emoji: "🍬", Providers: []string{"coto", "argenchino", "makro"}},
 	}
-	s.branches = []Branch{
+	for _, p := range catalog {
+		s.db.Exec(`INSERT IGNORE INTO products (id,name,price,emoji,image) VALUES (?,?,?,?,?)`,
+			p.ID, p.Name, p.Price, p.Emoji, p.Image)
+		for _, pv := range p.Providers {
+			s.db.Exec(`INSERT IGNORE INTO product_providers (product_id,provider_id) VALUES (?,?)`, p.ID, pv)
+		}
+	}
+}
+
+func (s *Store) seedBranches() {
+	rows := []Branch{
 		{ID: "centro", Name: "Sucursal Centro", Address: "Av. Corrientes 1234, CABA", Emoji: "🏙️"},
 		{ID: "palermo", Name: "Sucursal Palermo", Address: "Thames 1800, Palermo", Emoji: "🌳"},
 		{ID: "belgrano", Name: "Sucursal Belgrano", Address: "Cabildo 2500, Belgrano", Emoji: "🏘️"},
 		{ID: "flores", Name: "Sucursal Flores", Address: "Av. Rivadavia 6000, Flores", Emoji: "🌸"},
 	}
-}
-
-func (s *Store) newID() string {
-	return fmt.Sprintf("%d%04d", time.Now().UnixMilli(), rand.Intn(10000))
-}
-
-func (s *Store) createBusiness(req CreateBusinessReq) *Business {
-	s.mu.Lock()
-	b := &Business{
-		ID:               s.newID(),
-		Name:             req.Name,
-		CUIT:             req.CUIT,
-		Phone:            req.Phone,
-		Address:          req.Address,
-		Type:             req.Type,
-		CreditLimit:      50000,
-		CreditUsed:       0,
-		AssessmentStatus: AssessmentPending,
-		CreatedAt:        time.Now(),
+	for _, b := range rows {
+		s.db.Exec(`INSERT IGNORE INTO branches (id,name,address,emoji) VALUES (?,?,?,?)`,
+			b.ID, b.Name, b.Address, b.Emoji)
 	}
-	s.businesses[b.ID] = b
-	s.mu.Unlock()
-	return b
 }
 
-func (s *Store) submitAssessment(bizID string, req SubmitAssessmentReq) (*Business, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	b, ok := s.businesses[bizID]
-	if !ok {
+// ── Businesses ──────────────────────────────────────────────────────────────
+
+func (s *Store) createBusiness(req CreateBusinessReq) (*Business, error) {
+	b := &Business{
+		ID: newID(), Name: req.Name,
+		CUIT: normalizeCUIT(req.CUIT), Phone: req.Phone,
+		Address: req.Address, Type: req.Type,
+		CreditLimit: 50000, AssessmentStatus: AssessmentPending,
+		CreatedAt: time.Now(),
+	}
+	_, err := s.db.Exec(
+		`INSERT INTO businesses (id,name,cuit,phone,address,type,credit_limit,credit_used,assessment_status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+		b.ID, b.Name, b.CUIT, b.Phone, b.Address, string(b.Type), b.CreditLimit, b.CreditUsed, string(b.AssessmentStatus), b.CreatedAt)
+	return b, err
+}
+
+func (s *Store) getBusiness(id string) (*Business, error) {
+	b := &Business{}
+	err := s.db.QueryRow(
+		`SELECT id,name,cuit,COALESCE(phone,''),COALESCE(address,''),type,credit_limit,credit_used,assessment_status,created_at FROM businesses WHERE id=?`, id).
+		Scan(&b.ID, &b.Name, &b.CUIT, &b.Phone, &b.Address, &b.Type, &b.CreditLimit, &b.CreditUsed, &b.AssessmentStatus, &b.CreatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return b, err
+}
+
+func (s *Store) getByCUIT(cuit string) (*Business, error) {
+	b := &Business{}
+	err := s.db.QueryRow(
+		`SELECT id,name,cuit,COALESCE(phone,''),COALESCE(address,''),type,credit_limit,credit_used,assessment_status,created_at FROM businesses WHERE cuit=?`,
+		normalizeCUIT(cuit)).
+		Scan(&b.ID, &b.Name, &b.CUIT, &b.Phone, &b.Address, &b.Type, &b.CreditLimit, &b.CreditUsed, &b.AssessmentStatus, &b.CreatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return b, err
+}
+
+func (s *Store) setCreditLimit(bizID string, limit int64) error {
+	_, err := s.db.Exec(`UPDATE businesses SET credit_limit=? WHERE id=?`, limit, bizID)
+	return err
+}
+
+func (s *Store) submitAssessment(bizID string, _ SubmitAssessmentReq) (*Business, error) {
+	res, err := s.db.Exec(`UPDATE businesses SET assessment_status=? WHERE id=?`, string(AssessmentApproved), bizID)
+	if err != nil {
+		return nil, err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
 		return nil, fmt.Errorf("business not found")
 	}
-	b.AssessmentStatus = AssessmentApproved
-	return b, nil
+	return s.getBusiness(bizID)
 }
 
-func (s *Store) getBusiness(id string) (*Business, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	b, ok := s.businesses[id]
-	return b, ok
-}
+// ── Catalog ─────────────────────────────────────────────────────────────────
 
-func (s *Store) setCreditLimit(bizID string, limit int64) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if b, ok := s.businesses[bizID]; ok {
-		b.CreditLimit = limit
+func (s *Store) listProviders() ([]Provider, error) {
+	rows, err := s.db.Query(`SELECT id,name,type,COALESCE(src,''),COALESCE(text_label,''),COALESCE(badge,'') FROM providers`)
+	if err != nil {
+		return nil, err
 	}
-}
-
-func (s *Store) getByCUIT(cuit string) (*Business, bool) {
-	normalized := normalizeCUIT(cuit)
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	for _, b := range s.businesses {
-		if normalizeCUIT(b.CUIT) == normalized {
-			return b, true
+	defer rows.Close()
+	var out []Provider
+	for rows.Next() {
+		var p Provider
+		if err := rows.Scan(&p.ID, &p.Name, &p.Type, &p.Src, &p.Text, &p.Badge); err != nil {
+			return nil, err
 		}
+		out = append(out, p)
 	}
-	return nil, false
+	return out, rows.Err()
 }
 
-func (s *Store) listProductsByProvider(providerID string) []Product {
+func (s *Store) listBranches() ([]Branch, error) {
+	rows, err := s.db.Query(`SELECT id,name,COALESCE(address,''),COALESCE(emoji,'') FROM branches`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Branch
+	for rows.Next() {
+		var b Branch
+		if err := rows.Scan(&b.ID, &b.Name, &b.Address, &b.Emoji); err != nil {
+			return nil, err
+		}
+		out = append(out, b)
+	}
+	return out, rows.Err()
+}
+
+func (s *Store) listProductsByProvider(providerID string) ([]Product, error) {
+	var rows *sql.Rows
+	var err error
 	if providerID == "" || providerID == "todos" {
-		return s.products
+		rows, err = s.db.Query(`SELECT id,name,price,COALESCE(emoji,''),COALESCE(image,'') FROM products`)
+	} else {
+		rows, err = s.db.Query(
+			`SELECT DISTINCT p.id,p.name,p.price,COALESCE(p.emoji,''),COALESCE(p.image,'') FROM products p JOIN product_providers pp ON p.id=pp.product_id WHERE pp.provider_id=?`,
+			providerID)
 	}
-	out := make([]Product, 0)
-	for _, p := range s.products {
-		for _, pv := range p.Providers {
-			if pv == providerID {
-				out = append(out, p)
-				break
-			}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var products []Product
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.ID, &p.Name, &p.Price, &p.Emoji, &p.Image); err != nil {
+			return nil, err
 		}
+		if p.Providers, err = s.loadProductProviders(p.ID); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
 	}
-	return out
+	return products, rows.Err()
 }
 
-func (s *Store) productByID(id string) (Product, bool) {
-	for _, p := range s.products {
-		if p.ID == id {
-			return p, true
-		}
+func (s *Store) loadProductProviders(productID string) ([]string, error) {
+	rows, err := s.db.Query(`SELECT provider_id FROM product_providers WHERE product_id=?`, productID)
+	if err != nil {
+		return nil, err
 	}
-	return Product{}, false
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		out = append(out, id)
+	}
+	return out, rows.Err()
 }
 
-func (s *Store) branchByID(id string) (Branch, bool) {
-	for _, b := range s.branches {
-		if b.ID == id {
-			return b, true
-		}
+func (s *Store) productByID(id string) (*Product, error) {
+	p := &Product{}
+	err := s.db.QueryRow(`SELECT id,name,price,COALESCE(emoji,''),COALESCE(image,'') FROM products WHERE id=?`, id).
+		Scan(&p.ID, &p.Name, &p.Price, &p.Emoji, &p.Image)
+	if err == sql.ErrNoRows {
+		return nil, nil
 	}
-	return Branch{}, false
+	return p, err
+}
+
+func (s *Store) branchByID(id string) (*Branch, error) {
+	b := &Branch{}
+	err := s.db.QueryRow(`SELECT id,name,COALESCE(address,''),COALESCE(emoji,'') FROM branches WHERE id=?`, id).
+		Scan(&b.ID, &b.Name, &b.Address, &b.Emoji)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return b, err
+}
+
+// ── Advances ─────────────────────────────────────────────────────────────────
+
+func newAdvance(bizID string, items []AdvanceItem, base int64, logistics LogisticsType) *Advance {
+	var storageCost int64
+	if logistics == LogisticsWarehouse {
+		storageCost = base * 2 / 100
+	}
+	now := time.Now()
+	return &Advance{
+		ID: newID(), BusinessID: bizID, Items: items,
+		Total: base + storageCost, Logistics: logistics, StorageCost: storageCost,
+		AdvanceDate: now.Format("02/01/2006"), DueDate: now.AddDate(0, 0, 30).Format("02/01/2006"),
+		Status: StatusCurrent, CreatedAt: now,
+	}
 }
 
 func (s *Store) createAdvance(bizID string, req CreateAdvanceReq) (*Advance, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, ok := s.businesses[bizID]; !ok {
-		return nil, fmt.Errorf("business not found")
-	}
-
 	items, base, err := s.buildItems(req.Cart)
 	if err != nil {
 		return nil, err
@@ -163,30 +253,45 @@ func (s *Store) createAdvance(bizID string, req CreateAdvanceReq) (*Advance, err
 	if base == 0 {
 		return nil, fmt.Errorf("cart is empty")
 	}
-
-	var storageCost int64
-	if req.Logistics == LogisticsWarehouse {
-		storageCost = base * 2 / 100
+	a := newAdvance(bizID, items, base, req.Logistics)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
 	}
-
-	now := time.Now()
-	a := &Advance{
-		ID:          s.newID(),
-		BusinessID:  bizID,
-		Items:       items,
-		Total:       base + storageCost,
-		Logistics:   req.Logistics,
-		StorageCost: storageCost,
-		AdvanceDate: now.Format("02/01/2006"),
-		DueDate:     now.AddDate(0, 0, 30).Format("02/01/2006"),
-		Status:      StatusCurrent,
-		CreatedAt:   now,
+	defer tx.Rollback()
+	var creditLimit, creditUsed int64
+	err = tx.QueryRow(`SELECT credit_limit, credit_used FROM businesses WHERE id=? FOR UPDATE`, bizID).
+		Scan(&creditLimit, &creditUsed)
+	if err != nil {
+		return nil, err
 	}
+	if creditUsed+a.Total > creditLimit {
+		return nil, fmt.Errorf("crédito insuficiente: disponible $%d, solicitado $%d", creditLimit-creditUsed, a.Total)
+	}
+	if err := s.insertAdvanceTx(tx, a); err != nil {
+		return nil, err
+	}
+	if _, err := tx.Exec(`UPDATE businesses SET credit_used=credit_used+? WHERE id=?`, a.Total, bizID); err != nil {
+		return nil, err
+	}
+	return a, tx.Commit()
+}
 
-	s.advances[a.ID] = a
-	s.bizAdvances[bizID] = append(s.bizAdvances[bizID], a.ID)
-	s.businesses[bizID].CreditUsed += a.Total
-	return a, nil
+func (s *Store) insertAdvanceTx(tx *sql.Tx, a *Advance) error {
+	_, err := tx.Exec(
+		`INSERT INTO advances (id,business_id,total,logistics,storage_cost,advance_date,due_date,status,delivery_status,target_branch,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+		a.ID, a.BusinessID, a.Total, string(a.Logistics), a.StorageCost, a.AdvanceDate, a.DueDate, string(a.Status), string(a.DeliveryStatus), a.TargetBranch, a.CreatedAt)
+	if err != nil {
+		return err
+	}
+	for _, item := range a.Items {
+		if _, err = tx.Exec(
+			`INSERT INTO advance_items (advance_id,product_id,name,emoji,image,qty,price) VALUES (?,?,?,?,?,?,?)`,
+			a.ID, item.ProductID, item.Name, item.Emoji, item.Image, item.Qty, item.Price); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) buildItems(cart map[string]int) ([]AdvanceItem, int64, error) {
@@ -196,109 +301,154 @@ func (s *Store) buildItems(cart map[string]int) ([]AdvanceItem, int64, error) {
 		if qty <= 0 {
 			continue
 		}
-		p, ok := s.productByID(productID)
-		if !ok {
+		p, err := s.productByID(productID)
+		if err != nil {
+			return nil, 0, err
+		}
+		if p == nil {
 			return nil, 0, fmt.Errorf("product %s not found", productID)
 		}
-		items = append(items, AdvanceItem{
-			ProductID: p.ID,
-			Name:      p.Name,
-			Emoji:     p.Emoji,
-			Image:     p.Image,
-			Qty:       qty,
-			Price:     p.Price,
-		})
+		items = append(items, AdvanceItem{ProductID: p.ID, Name: p.Name, Emoji: p.Emoji, Image: p.Image, Qty: qty, Price: p.Price})
 		base += p.Price * int64(qty)
 	}
 	return items, base, nil
 }
 
-func (s *Store) listAdvances(bizID string) []*Advance {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	ids := s.bizAdvances[bizID]
-	out := make([]*Advance, 0, len(ids))
-	for _, id := range ids {
-		if a, ok := s.advances[id]; ok {
-			out = append(out, a)
-		}
+func (s *Store) loadAdvanceItems(advanceID string) ([]AdvanceItem, error) {
+	rows, err := s.db.Query(
+		`SELECT product_id,name,COALESCE(emoji,''),COALESCE(image,''),qty,price FROM advance_items WHERE advance_id=?`, advanceID)
+	if err != nil {
+		return nil, err
 	}
-	return out
+	defer rows.Close()
+	var items []AdvanceItem
+	for rows.Next() {
+		var item AdvanceItem
+		if err := rows.Scan(&item.ProductID, &item.Name, &item.Emoji, &item.Image, &item.Qty, &item.Price); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, rows.Err()
+}
+
+func (s *Store) loadAdvance(id string) (*Advance, error) {
+	a := &Advance{}
+	err := s.db.QueryRow(
+		`SELECT id,business_id,total,logistics,storage_cost,advance_date,due_date,status,delivery_status,target_branch,created_at FROM advances WHERE id=?`, id).
+		Scan(&a.ID, &a.BusinessID, &a.Total, &a.Logistics, &a.StorageCost, &a.AdvanceDate, &a.DueDate, &a.Status, &a.DeliveryStatus, &a.TargetBranch, &a.CreatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	a.Items, err = s.loadAdvanceItems(a.ID)
+	return a, err
+}
+
+func (s *Store) listAdvances(bizID string) ([]*Advance, error) {
+	rows, err := s.db.Query(
+		`SELECT id,business_id,total,logistics,storage_cost,advance_date,due_date,status,delivery_status,target_branch,created_at FROM advances WHERE business_id=? ORDER BY created_at DESC`, bizID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var advances []*Advance
+	for rows.Next() {
+		a := &Advance{}
+		err = rows.Scan(&a.ID, &a.BusinessID, &a.Total, &a.Logistics, &a.StorageCost, &a.AdvanceDate, &a.DueDate, &a.Status, &a.DeliveryStatus, &a.TargetBranch, &a.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		if a.Items, err = s.loadAdvanceItems(a.ID); err != nil {
+			return nil, err
+		}
+		advances = append(advances, a)
+	}
+	return advances, rows.Err()
+}
+
+func (s *Store) checkDeliveryEligible(advanceID string) error {
+	var logistics LogisticsType
+	var deliveryStatus DeliveryStatus
+	err := s.db.QueryRow(`SELECT logistics,delivery_status FROM advances WHERE id=?`, advanceID).
+		Scan(&logistics, &deliveryStatus)
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("advance not found")
+	}
+	if err != nil {
+		return err
+	}
+	if logistics != LogisticsWarehouse {
+		return fmt.Errorf("advance is not stored in warehouse")
+	}
+	if deliveryStatus == DeliveryInTransit {
+		return fmt.Errorf("delivery already in transit")
+	}
+	return nil
 }
 
 func (s *Store) requestDelivery(advanceID, branchID string) (*Advance, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	a, ok := s.advances[advanceID]
-	if !ok {
-		return nil, fmt.Errorf("advance not found")
+	branch, err := s.branchByID(branchID)
+	if err != nil {
+		return nil, err
 	}
-	if a.Logistics != LogisticsWarehouse {
-		return nil, fmt.Errorf("advance is not stored in warehouse")
-	}
-	if a.DeliveryStatus == DeliveryInTransit {
-		return nil, fmt.Errorf("delivery already in transit")
-	}
-
-	branch, ok := s.branchByID(branchID)
-	if !ok {
+	if branch == nil {
 		return nil, fmt.Errorf("branch not found")
 	}
-
-	a.DeliveryStatus = DeliveryInTransit
-	a.TargetBranch = branch.Name
-	return a, nil
-}
-
-func (s *Store) dashboardStats(bizID string) (*DashboardStats, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	biz, ok := s.businesses[bizID]
-	if !ok {
-		return nil, false
+	if err := s.checkDeliveryEligible(advanceID); err != nil {
+		return nil, err
 	}
-
-	ids := s.bizAdvances[bizID]
-	var activeProducts, paid int
-	for _, id := range ids {
-		a, exists := s.advances[id]
-		if !exists {
-			continue
-		}
-		if a.Status == StatusPaid {
-			paid++
-		} else {
-			activeProducts += len(a.Items)
-		}
+	if _, err := s.db.Exec(`UPDATE advances SET delivery_status=?,target_branch=? WHERE id=?`,
+		string(DeliveryInTransit), branch.Name, advanceID); err != nil {
+		return nil, err
 	}
-
-	return &DashboardStats{
-		Business:       biz,
-		ActiveProducts: activeProducts,
-		TotalAdvances:  len(ids),
-		TotalPaid:      paid,
-	}, true
+	return s.loadAdvance(advanceID)
 }
 
 func (s *Store) payAdvance(advanceID string) (*Advance, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	a, ok := s.advances[advanceID]
-	if !ok {
+	a, err := s.loadAdvance(advanceID)
+	if err != nil {
+		return nil, err
+	}
+	if a == nil {
 		return nil, fmt.Errorf("advance not found")
 	}
 	if a.Status == StatusPaid {
 		return nil, fmt.Errorf("advance already paid")
 	}
-
-	a.Status = StatusPaid
-	biz := s.businesses[a.BusinessID]
-	biz.CreditUsed -= a.Total
-	if biz.CreditUsed < 0 {
-		biz.CreditUsed = 0
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
 	}
+	defer tx.Rollback()
+	if _, err := tx.Exec(`UPDATE advances SET status=? WHERE id=?`, string(StatusPaid), advanceID); err != nil {
+		return nil, err
+	}
+	if _, err := tx.Exec(`UPDATE businesses SET credit_used=GREATEST(0,credit_used-?) WHERE id=?`, a.Total, a.BusinessID); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	a.Status = StatusPaid
 	return a, nil
+}
+
+func (s *Store) dashboardStats(bizID string) (*DashboardStats, error) {
+	biz, err := s.getBusiness(bizID)
+	if err != nil {
+		return nil, err
+	}
+	if biz == nil {
+		return nil, nil
+	}
+	var totalAdvances, totalPaid, activeProducts int
+	s.db.QueryRow(`SELECT COUNT(*), COALESCE(SUM(status='paid'),0) FROM advances WHERE business_id=?`, bizID).
+		Scan(&totalAdvances, &totalPaid)
+	s.db.QueryRow(
+		`SELECT COUNT(*) FROM advance_items ai JOIN advances a ON ai.advance_id=a.id WHERE a.business_id=? AND a.status!='paid'`, bizID).
+		Scan(&activeProducts)
+	return &DashboardStats{Business: biz, ActiveProducts: activeProducts, TotalAdvances: totalAdvances, TotalPaid: totalPaid}, nil
 }

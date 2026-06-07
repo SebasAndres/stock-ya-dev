@@ -35,20 +35,26 @@ func (h *handlers) createBusiness(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "name and cuit are required")
 		return
 	}
-	biz := h.store.createBusiness(req)
-
+	biz, err := h.store.createBusiness(req)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "could not create business")
+		return
+	}
 	check := h.bcra.RunChecks(req.CUIT)
 	h.store.setCreditLimit(biz.ID, CreditLimitFromCheck(check))
 	biz.CreditLimit = CreditLimitFromCheck(check)
-
 	writeJSON(w, http.StatusCreated, biz)
 }
 
 // GET /api/businesses/{id}
 func (h *handlers) getBusiness(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	biz, ok := h.store.getBusiness(id)
-	if !ok {
+	biz, err := h.store.getBusiness(id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if biz == nil {
 		writeError(w, http.StatusNotFound, "business not found")
 		return
 	}
@@ -58,8 +64,12 @@ func (h *handlers) getBusiness(w http.ResponseWriter, r *http.Request) {
 // GET /api/businesses/{id}/dashboard
 func (h *handlers) getDashboard(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	stats, ok := h.store.dashboardStats(id)
-	if !ok {
+	stats, err := h.store.dashboardStats(id)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if stats == nil {
 		writeError(w, http.StatusNotFound, "business not found")
 		return
 	}
@@ -69,34 +79,51 @@ func (h *handlers) getDashboard(w http.ResponseWriter, r *http.Request) {
 // GET /api/products?provider=id
 func (h *handlers) listProducts(w http.ResponseWriter, r *http.Request) {
 	provider := r.URL.Query().Get("provider")
-	products := h.store.listProductsByProvider(provider)
+	products, err := h.store.listProductsByProvider(provider)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
 	writeJSON(w, http.StatusOK, products)
 }
 
 // GET /api/providers
 func (h *handlers) listProviders(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, h.store.providers)
+	providers, err := h.store.listProviders()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	writeJSON(w, http.StatusOK, providers)
 }
 
 // GET /api/branches
 func (h *handlers) listBranches(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, h.store.branches)
+	branches, err := h.store.listBranches()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	writeJSON(w, http.StatusOK, branches)
 }
 
 // POST /api/businesses/{id}/advances
 func (h *handlers) createAdvance(w http.ResponseWriter, r *http.Request) {
 	bizID := r.PathValue("id")
-	if _, ok := h.store.getBusiness(bizID); !ok {
+	biz, err := h.store.getBusiness(bizID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if biz == nil {
 		writeError(w, http.StatusNotFound, "business not found")
 		return
 	}
-
 	var req CreateAdvanceReq
 	if err := decode(r, &req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-
 	advance, err := h.store.createAdvance(bizID, req)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -108,11 +135,20 @@ func (h *handlers) createAdvance(w http.ResponseWriter, r *http.Request) {
 // GET /api/businesses/{id}/advances
 func (h *handlers) listAdvances(w http.ResponseWriter, r *http.Request) {
 	bizID := r.PathValue("id")
-	if _, ok := h.store.getBusiness(bizID); !ok {
+	biz, err := h.store.getBusiness(bizID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if biz == nil {
 		writeError(w, http.StatusNotFound, "business not found")
 		return
 	}
-	advances := h.store.listAdvances(bizID)
+	advances, err := h.store.listAdvances(bizID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
 	writeJSON(w, http.StatusOK, advances)
 }
 
@@ -158,13 +194,15 @@ func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "cuit is required")
 		return
 	}
-
-	biz, ok := h.store.getByCUIT(req.CUIT)
-	if !ok {
+	biz, err := h.store.getByCUIT(req.CUIT)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if biz == nil {
 		writeError(w, http.StatusNotFound, "negocio no encontrado — registrate primero")
 		return
 	}
-
 	check := h.bcra.RunChecks(req.CUIT)
 	writeJSON(w, http.StatusOK, LoginResponse{Business: biz, BCRACheck: check})
 }
@@ -172,7 +210,6 @@ func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
 // POST /api/advances/{id}/delivery
 func (h *handlers) requestDelivery(w http.ResponseWriter, r *http.Request) {
 	advanceID := r.PathValue("id")
-
 	var req DeliveryReq
 	if err := decode(r, &req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
@@ -182,7 +219,6 @@ func (h *handlers) requestDelivery(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "sucursalId is required")
 		return
 	}
-
 	advance, err := h.store.requestDelivery(advanceID, req.BranchID)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())

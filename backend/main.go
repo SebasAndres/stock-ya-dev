@@ -19,7 +19,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	store := newStore()
+	store := newStore(openDB())
 	h := &handlers{store: store, bcra: newBCRAClient()}
 
 	mux := http.NewServeMux()
