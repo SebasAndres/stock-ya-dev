@@ -134,6 +134,7 @@ type SubmitAssessmentReq struct {
 	DailyCustomers int     `json:"dailyCustomers"`
 	Latitude       float64 `json:"latitude"`
 	Longitude      float64 `json:"longitude"`
+	Address        string  `json:"address"`
 }
 
 type CreateAdvanceReq struct {
@@ -141,9 +142,7 @@ type CreateAdvanceReq struct {
 	Logistics LogisticsType  `json:"logistics"`
 }
 
-type DeliveryReq struct {
-	BranchID string `json:"sucursalId"`
-}
+type DeliveryReq struct{}
 
 type LoginReq struct {
 	CUIT string `json:"cuit"`

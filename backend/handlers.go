@@ -171,10 +171,7 @@ func (h *handlers) submitAssessment(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
-	if req.YearsOpen == 0 && req.DailyCustomers == 0 {
-		writeError(w, http.StatusBadRequest, "yearsOpen and dailyCustomers are required")
-		return
-	}
+
 	biz, err := h.store.submitAssessment(bizID, req)
 	if err != nil {
 		writeError(w, http.StatusNotFound, err.Error())
@@ -210,16 +207,7 @@ func (h *handlers) login(w http.ResponseWriter, r *http.Request) {
 // POST /api/advances/{id}/delivery
 func (h *handlers) requestDelivery(w http.ResponseWriter, r *http.Request) {
 	advanceID := r.PathValue("id")
-	var req DeliveryReq
-	if err := decode(r, &req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body")
-		return
-	}
-	if req.BranchID == "" {
-		writeError(w, http.StatusBadRequest, "sucursalId is required")
-		return
-	}
-	advance, err := h.store.requestDelivery(advanceID, req.BranchID)
+	advance, err := h.store.requestDelivery(advanceID)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return

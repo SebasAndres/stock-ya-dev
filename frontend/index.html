@@ -592,6 +592,39 @@
 
     @media (max-width: 480px) { .header-user-name { display: none; } }
 
+    .header-user { position: relative; }
+
+    .header-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      min-width: 160px;
+      z-index: 200;
+      overflow: hidden;
+      display: none;
+    }
+    .header-menu.open { display: block; }
+
+    .header-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--neutral-700);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .header-menu-item:hover { background: var(--neutral-100); }
+    .header-menu-item.danger { color: #dc2626; }
+
+    .avatar { cursor: pointer; }
+
     /* Bottom Nav */
     .app-bottom-nav {
       position: fixed;
@@ -2716,10 +2749,13 @@
   <div class="bottom-sheet-backdrop" onclick="closeDeliverySheet()"></div>
   <div class="bottom-sheet-card">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Enviar a sucursal</div>
+    <div class="sheet-title">Enviar a mi negocio</div>
     <div id="sheet-product-pill"></div>
-    <div class="sheet-section-label">¿A qué sucursal enviamos?</div>
-    <div class="sucursal-list" id="sucursal-list"></div>
+    <div class="sheet-section-label">Dirección de entrega</div>
+    <div id="sheet-delivery-address" style="background:var(--neutral-50);border:1px solid var(--neutral-200);border-radius:var(--radius-md);padding:12px 14px;font-size:14px;color:var(--neutral-700);margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:16px;flex-shrink:0">📍</span>
+      <span id="sheet-delivery-address-text">—</span>
+    </div>
     <div class="sheet-eta">⏱ Estimado 24–48 hs hábiles · Sin costo adicional</div>
     <button class="btn-confirm" onclick="confirmDelivery()">
       <span>Confirmar envío</span>
@@ -2807,7 +2843,7 @@
         </p>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-val">+1.200</span>
+            <span class="stat-val">ZZZZ</span>
             <span class="stat-label">Almacenes activos</span>
           </div>
           <div class="stat-divider"></div>
@@ -3054,7 +3090,7 @@
         <div id="assessment-map-status" class="register-map-status">Buscá, hacé click en el mapa o arrastrá el pin</div>
       </div>
 
-      <button class="assessment-next" id="btn-step2-submit" onclick="submitAssessment()">
+      <button class="assessment-next" id="btn-step2-submit" onclick="submitAssessment()" disabled>
         Verificar mi negocio →
       </button>
     </div>
@@ -3109,7 +3145,13 @@
         </div>
         <div class="header-user">
           <div class="header-user-name" id="header-biz-name">Mi Negocio</div>
-          <div class="avatar" id="header-avatar">MN</div>
+          <div class="avatar" id="header-avatar" onclick="toggleHeaderMenu(event)">MN</div>
+          <div class="header-menu" id="header-menu">
+            <div class="header-menu-item danger" onclick="handleLogout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -3241,7 +3283,13 @@
         </div>
         <div class="header-user">
           <div class="header-user-name" id="adelantar-header-name">Mi Negocio</div>
-          <div class="avatar" id="adelantar-avatar">MN</div>
+          <div class="avatar" id="adelantar-avatar" onclick="toggleHeaderMenu(event)">MN</div>
+          <div class="header-menu" id="adelantar-menu">
+            <div class="header-menu-item danger" onclick="handleLogout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -3476,7 +3524,13 @@
         </div>
         <div class="header-user">
           <div class="header-user-name" id="stock-header-name">Mi Negocio</div>
-          <div class="avatar" id="stock-avatar">MN</div>
+          <div class="avatar" id="stock-avatar" onclick="toggleHeaderMenu(event)">MN</div>
+          <div class="header-menu" id="stock-menu">
+            <div class="header-menu-item danger" onclick="handleLogout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -3549,7 +3603,13 @@
         </div>
         <div class="header-user">
           <div class="header-user-name" id="deposito-header-name">Mi Negocio</div>
-          <div class="avatar" id="deposito-avatar">MN</div>
+          <div class="avatar" id="deposito-avatar" onclick="toggleHeaderMenu(event)">MN</div>
+          <div class="header-menu" id="deposito-menu">
+            <div class="header-menu-item danger" onclick="handleLogout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -3656,6 +3716,35 @@ function showView(name) {
   if (name === 'deposito')   renderDeposito();
 }
 
+/* ─── Header menu ─────────────────────────────────────────── */
+const HEADER_MENUS = ['header-menu', 'adelantar-menu', 'stock-menu', 'deposito-menu'];
+
+function closeAllHeaderMenus() {
+  HEADER_MENUS.forEach(id => document.getElementById(id)?.classList.remove('open'));
+}
+
+function toggleHeaderMenu(e) {
+  e.stopPropagation();
+  const avatar = e.currentTarget;
+  const menu = avatar.nextElementSibling;
+  const wasOpen = menu.classList.contains('open');
+  closeAllHeaderMenus();
+  if (!wasOpen) menu.classList.add('open');
+}
+
+document.addEventListener('click', closeAllHeaderMenus);
+
+function handleLogout() {
+  closeAllHeaderMenus();
+  state.biz = { id: null, name: '', cuit: '', phone: '', address: '', type: '' };
+  state.cart = {};
+  state.logistics = 'envio';
+  state.selectedProvider = 'todos';
+  state.stockItems = [];
+  state.availableCredit = Infinity;
+  showView('landing');
+}
+
 /* ─── Greeting ────────────────────────────────────────────── */
 function getDayGreeting() {
   const h = new Date().getHours();
@@ -3669,6 +3758,7 @@ const assessmentState = {
   photoBase64: null,
   latitude: 0,
   longitude: 0,
+  address: '',
 };
 
 let cameraStream = null;
@@ -3719,7 +3809,7 @@ function setPhoto(dataUrl) {
 function skipPhoto() {
   assessmentState.photoBase64 = 'pending';
   stopCamera();
-  showView('dashboard');
+  goToAssessmentStep2();
 }
 
 function onPhotoSelected(input) {
@@ -3790,12 +3880,15 @@ async function _assessmentReverseGeocode(lat, lng) {
 function _setAssessmentLocation(lat, lng, address) {
   assessmentState.latitude  = lat;
   assessmentState.longitude = lng;
+  assessmentState.address   = address;
   const input = document.getElementById('assessment-map-search');
   const statusEl = document.getElementById('assessment-map-status');
   const mapEl = document.getElementById('assessment-map');
   if (input) input.value = address;
   if (statusEl) { statusEl.textContent = '📍 ' + address; statusEl.className = 'register-map-status selected'; }
   if (mapEl) mapEl.classList.add('has-location');
+  const submitBtn = document.getElementById('btn-step2-submit');
+  if (submitBtn) submitBtn.disabled = false;
 }
 
 function detectAssessmentLocation() {
@@ -3869,6 +3962,7 @@ async function submitAssessment() {
         photo:     (assessmentState.photoBase64 === 'pending' ? '' : assessmentState.photoBase64) || '',
         latitude:  assessmentState.latitude,
         longitude: assessmentState.longitude,
+        address:   assessmentState.address,
       }),
     });
     state.biz = { ...state.biz, ...biz };
@@ -4599,15 +4693,14 @@ function renderDepositoUI() {
           ${entry.items.map(i => `<div class="deposito-product-chip">${i.emoji} ${i.name} ×${i.qty}</div>`).join('')}
         </div>
         ${isTransit
-          ? `<div class="btn-pedir-envio en-transito">🚚 En tránsito → ${entry.targetSucursal}</div>`
-          : `<button class="btn-pedir-envio" onclick="openDeliverySheet('${entry.id}')">📤 Pedir envío a sucursal</button>`}
+          ? `<div class="btn-pedir-envio en-transito">🚚 En camino → ${entry.targetSucursal}</div>`
+          : `<button class="btn-pedir-envio" onclick="openDeliverySheet('${entry.id}')">📤 Pedir envío a mi negocio</button>`}
       </div>`;
   }).join('');
 }
 
 function openDeliverySheet(entryId) {
   deliveryTargetId = entryId;
-  selectedBranchId = SUCURSALES[0]?.id || null;
 
   const entry = state.stockItems.find(e => e.id === entryId);
   if (!entry) return;
@@ -4620,7 +4713,9 @@ function openDeliverySheet(entryId) {
   document.getElementById('sheet-product-pill').innerHTML =
     `<div class="sheet-product-pill">📦 ${summary} · ${totalQty} unidades · $${entry.total.toLocaleString('es-AR')}</div>`;
 
-  renderBranchList();
+  const address = state.biz.address || 'Dirección no registrada';
+  document.getElementById('sheet-delivery-address-text').textContent = address;
+
   document.getElementById('delivery-sheet').classList.add('show');
 }
 
@@ -4647,20 +4742,20 @@ function selectBranch(id) {
 }
 
 async function confirmDelivery() {
-  if (!deliveryTargetId || !selectedBranchId) return;
+  if (!deliveryTargetId) return;
   const btn = document.querySelector('#delivery-sheet .btn-confirm');
   btn.disabled = true;
 
   try {
     const updated = await apiFetch(`/api/advances/${deliveryTargetId}/delivery`, {
       method: 'POST',
-      body: JSON.stringify({ sucursalId: selectedBranchId }),
+      body: JSON.stringify({}),
     });
     const idx = state.stockItems.findIndex(e => e.id === updated.id);
     if (idx !== -1) state.stockItems[idx] = updated;
 
     closeDeliverySheet();
-    showToast(`🚚 Envío confirmado → ${updated.targetSucursal}`);
+    showToast(`🚚 Envío en camino a ${updated.targetSucursal}`);
     renderDepositoUI();
   } catch (err) {
     alert('Error al confirmar envío: ' + err.message);

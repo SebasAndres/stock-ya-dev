@@ -117,8 +117,17 @@ func (s *Store) setCreditLimit(bizID string, limit int64) error {
 	return err
 }
 
-func (s *Store) submitAssessment(bizID string, _ SubmitAssessmentReq) (*Business, error) {
-	res, err := s.db.Exec(`UPDATE businesses SET assessment_status=? WHERE id=?`, string(AssessmentApproved), bizID)
+func (s *Store) submitAssessment(bizID string, req SubmitAssessmentReq) (*Business, error) {
+	var res sql.Result
+	var err error
+	if req.Address != "" {
+		res, err = s.db.Exec(
+			`UPDATE businesses SET assessment_status=?, address=? WHERE id=?`,
+			string(AssessmentApproved), req.Address, bizID,
+		)
+	} else {
+		res, err = s.db.Exec(`UPDATE businesses SET assessment_status=? WHERE id=?`, string(AssessmentApproved), bizID)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -389,19 +398,24 @@ func (s *Store) checkDeliveryEligible(advanceID string) error {
 	return nil
 }
 
-func (s *Store) requestDelivery(advanceID, branchID string) (*Advance, error) {
-	branch, err := s.branchByID(branchID)
-	if err != nil {
-		return nil, err
-	}
-	if branch == nil {
-		return nil, fmt.Errorf("branch not found")
-	}
+func (s *Store) requestDelivery(advanceID string) (*Advance, error) {
 	if err := s.checkDeliveryEligible(advanceID); err != nil {
 		return nil, err
 	}
+	var bizID string
+	if err := s.db.QueryRow(`SELECT business_id FROM advances WHERE id=?`, advanceID).Scan(&bizID); err != nil {
+		return nil, err
+	}
+	biz, err := s.getBusiness(bizID)
+	if err != nil {
+		return nil, err
+	}
+	address := biz.Address
+	if address == "" {
+		address = "domicilio del negocio"
+	}
 	if _, err := s.db.Exec(`UPDATE advances SET delivery_status=?,target_branch=? WHERE id=?`,
-		string(DeliveryInTransit), branch.Name, advanceID); err != nil {
+		string(DeliveryInTransit), address, advanceID); err != nil {
 		return nil, err
 	}
 	return s.loadAdvance(advanceID)
