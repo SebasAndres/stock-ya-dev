@@ -768,51 +768,57 @@
       font-weight: 600;
     }
 
-    .credit-logo-mark {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    /* CTA adelantar */
-    .cta-adelantar {
-      width: 100%;
-      padding: 18px 24px;
-      background: var(--green-500);
-      color: var(--white);
+    .credit-card-cta {
+      background: rgba(255,255,255,0.95);
+      color: var(--green-800);
       font-family: var(--font-display);
       font-weight: 700;
-      font-size: 17px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: transform var(--transition), box-shadow var(--transition);
-      box-shadow: var(--shadow-green);
-      margin-bottom: 24px;
-      letter-spacing: -0.3px;
+      font-size: 13px;
+      padding: 10px 18px;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      letter-spacing: -0.2px;
     }
 
-    .cta-adelantar:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 36px rgba(26,150,69,.4);
+    .credit-card-cta:hover {
+      background: var(--white);
+      transform: translateY(-1px);
     }
 
-    .cta-icon {
-      width: 28px;
-      height: 28px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 6px;
+    .credit-card-cta.disabled {
+      background: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
+      cursor: default;
+      transform: none;
+    }
+
+    .credit-utilization {
+      margin-bottom: 20px;
+    }
+
+    .credit-util-track {
+      height: 5px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .credit-util-fill {
+      height: 100%;
+      background: rgba(255,255,255,0.7);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .credit-util-labels {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
+      justify-content: space-between;
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
     }
 
     /* Quick stats row */
@@ -2150,6 +2156,752 @@
       white-space: nowrap;
     }
 
+    .referral-banner-compact {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .referral-banner-compact .referral-banner-eyebrow {
+      font-size: 11px;
+      margin-bottom: 3px;
+      padding: 0;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.5px;
+    }
+
+    .referral-banner-compact-body {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+
+    .referral-banner-compact-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .referral-banner-compact .referral-banner-cta {
+      font-size: 13px;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* ─── ADN SOCIAL ───────────────────────────────────────── */
+    .adn-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-top: 24px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
+      box-shadow: 0 12px 36px rgba(67,56,202,.35);
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .adn-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 48px rgba(67,56,202,.45);
+    }
+
+    .adn-card::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 220px; height: 220px;
+      border: 2px solid rgba(255,255,255,0.07);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .adn-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .adn-card-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .adn-level-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--white);
+    }
+
+    .adn-level-badge.activo  { background: rgba(16,185,129,.25); border-color: rgba(16,185,129,.4); }
+    .adn-level-badge.verificado { background: rgba(99,102,241,.35); border-color: rgba(165,180,252,.4); }
+    .adn-level-badge.premium { background: rgba(245,158,11,.25); border-color: rgba(252,211,77,.4); color: #fde68a; }
+
+    .adn-strength-bar {
+      height: 5px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .adn-strength-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #818cf8, #c4b5fd);
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    .adn-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 18px;
+    }
+
+    .adn-action-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+
+    .adn-action-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .adn-action-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.3;
+    }
+
+    .adn-action-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 1px;
+    }
+
+    .adn-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+      z-index: 1;
+    }
+
+    .adn-card-cta {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: #a5b4fc;
+      letter-spacing: -0.2px;
+    }
+
+    /* ADN Social view */
+    .adn-score-hero {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .adn-score-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      border: 2px solid rgba(255,255,255,0.06);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .adn-score-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .adn-score-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 4px;
+    }
+
+    .adn-score-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .adn-score-pts {
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 16px;
+    }
+
+    .adn-score-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .adn-score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #818cf8, #c4b5fd);
+      border-radius: 999px;
+      transition: width 0.6s ease;
+    }
+
+    .adn-score-levels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .adn-score-levels span.active-level {
+      color: #a5b4fc;
+      font-weight: 700;
+    }
+
+    .adn-boost-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-full);
+      padding: 5px 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .adn-boost-tag strong {
+      color: #a5b4fc;
+    }
+
+    /* Doc upload section */
+    .adn-section-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      letter-spacing: -0.3px;
+      margin-bottom: 12px;
+    }
+
+    .adn-doc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 480px) {
+      .adn-doc-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .adn-doc-card {
+      background: var(--white);
+      border: 1.5px dashed var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .adn-doc-card:hover {
+      border-color: #818cf8;
+      background: #f5f3ff;
+    }
+
+    .adn-doc-card.uploaded {
+      border-color: #a5b4fc;
+      border-style: solid;
+      background: #f5f3ff;
+    }
+
+    .adn-doc-icon {
+      font-size: 26px;
+    }
+
+    .adn-doc-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--neutral-900);
+    }
+
+    .adn-doc-pts {
+      font-size: 11px;
+      color: #6366f1;
+      font-weight: 600;
+    }
+
+    .adn-doc-count {
+      font-size: 11px;
+      color: var(--neutral-400);
+    }
+
+    .adn-doc-card.uploaded .adn-doc-pts {
+      color: #4f46e5;
+    }
+
+    /* Referidos row in ADN Social view */
+    .adn-referral-card {
+      background: linear-gradient(135deg, #7c2d12 0%, #c2410c 50%, #ea580c 100%);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .adn-referral-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .adn-referral-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 3px;
+    }
+
+    .adn-referral-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.3px;
+    }
+
+    .adn-referral-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 2px;
+    }
+
+    .adn-referral-btn {
+      background: rgba(255,255,255,0.95);
+      color: #c2410c;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 16px;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .adn-referral-btn:hover {
+      filter: brightness(0.97);
+    }
+
+    /* ADN log */
+    .adn-log {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .adn-log-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .adn-log-icon { font-size: 16px; flex-shrink: 0; }
+
+    .adn-log-name {
+      flex: 1;
+      font-size: 13px;
+      color: var(--neutral-700);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .adn-log-pts {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    .adn-empty-docs {
+      text-align: center;
+      padding: 20px;
+      color: var(--neutral-400);
+      font-size: 13px;
+    }
+
+    /* ─── Referidos hero ──────────────────────────────────── */
+    .ref-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
+      background: linear-gradient(145deg, #431407 0%, #7c2d12 35%, #c2410c 70%, #f97316 100%);
+      box-shadow: 0 16px 48px rgba(194,65,12,.45);
+    }
+
+    .ref-hero-glow {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(251,146,60,.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .ref-hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 28px 24px 20px;
+    }
+
+    .ref-hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 10px;
+    }
+
+    .ref-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 6vw, 32px);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+
+    .ref-hero-impact-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .ref-impact-pill {
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .ref-impact-pill--dim {
+      background: rgba(0,0,0,0.15);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .ref-impact-val {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .ref-impact-pill--dim .ref-impact-val {
+      color: rgba(255,255,255,0.55);
+    }
+
+    .ref-impact-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+
+    .ref-impact-pill--dim .ref-impact-lbl {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .ref-impact-divider {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .ref-hero-sub {
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 22px;
+    }
+
+    .ref-hero-sub strong {
+      color: #fde68a;
+    }
+
+    .ref-hero-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 15px 20px;
+      background: var(--white);
+      color: #c2410c;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 15px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      letter-spacing: -0.3px;
+      transition: filter var(--transition), transform var(--transition);
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    }
+
+    .ref-hero-cta:hover {
+      filter: brightness(0.96);
+      transform: translateY(-1px);
+    }
+
+    .ref-hero-cta-arrow {
+      font-size: 18px;
+      transition: transform var(--transition);
+    }
+
+    .ref-hero-cta:hover .ref-hero-cta-arrow {
+      transform: translateX(4px);
+    }
+
+    .ref-hero-stats {
+      display: flex;
+      align-items: stretch;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      position: relative;
+      z-index: 1;
+    }
+
+    .ref-stat {
+      flex: 1;
+      text-align: center;
+      padding: 14px 8px;
+    }
+
+    .ref-stat-val {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+
+    .ref-stat-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .ref-stat-sep {
+      width: 1px;
+      background: rgba(255,255,255,0.12);
+      margin: 10px 0;
+    }
+
+    /* Referidos earned list */
+    .adn-ref-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .adn-ref-item-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c2410c, #ea580c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      font-family: var(--font-display);
+    }
+
+    .adn-ref-item-body { flex: 1; min-width: 0; }
+
+    .adn-ref-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-900);
+    }
+
+    .adn-ref-item-date {
+      font-size: 11px;
+      color: var(--neutral-400);
+      margin-top: 1px;
+    }
+
+    .adn-ref-item-credit {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--green-600);
+    }
+
+    /* Gamified milestones */
+    .adn-milestone {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 10px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .adn-milestone.completed {
+      border-left: 3px solid var(--green-500);
+    }
+
+    .adn-milestone.locked {
+      opacity: 0.6;
+    }
+
+    .adn-milestone-icon {
+      font-size: 22px;
+      width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .adn-milestone-body { flex: 1; min-width: 0; }
+
+    .adn-milestone-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 2px;
+    }
+
+    .adn-milestone-desc {
+      font-size: 12px;
+      color: var(--neutral-400);
+      margin-bottom: 8px;
+    }
+
+    .adn-milestone-bar {
+      height: 4px;
+      background: var(--neutral-100);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .adn-milestone-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #818cf8, #c4b5fd);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    .adn-milestone.completed .adn-milestone-fill {
+      background: var(--green-500);
+    }
+
+    .adn-milestone-progress {
+      font-size: 11px;
+      color: var(--neutral-400);
+    }
+
+    .adn-milestone-reward {
+      font-size: 12px;
+      font-weight: 700;
+      color: #6366f1;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .adn-milestone.completed .adn-milestone-reward {
+      color: var(--green-600);
+    }
+
     @media (max-width: 480px) {
       .referral-banner { padding: 24px 20px; }
       .referral-badge-float { display: none; }
@@ -3182,6 +3934,7 @@
     <button class="top-tab" id="ttab-adelantar" onclick="showView('adelantar')">Adelantar</button>
     <button class="top-tab" id="ttab-mistock" onclick="showView('mistock')">Mi Stock</button>
     <button class="top-tab" id="ttab-deposito" onclick="showView('deposito')">Depósito</button>
+    <button class="top-tab" id="ttab-adnsocial" onclick="showView('adnsocial')" style="color:#818cf8">🧬 ADN Social</button>
   </div>
 </div>
 
@@ -3207,6 +3960,9 @@
           <div class="header-user-name" id="header-biz-name">Mi Negocio</div>
           <div class="avatar" id="header-avatar" onclick="toggleHeaderMenu(event)">MN</div>
           <div class="header-menu" id="header-menu">
+            <div class="header-menu-item" onclick="showView('adnsocial')" style="color:#6366f1">
+              🧬 ADN Social
+            </div>
             <div class="header-menu-item danger" onclick="handleLogout()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Cerrar sesión
@@ -3225,22 +3981,8 @@
           <div class="dash-title" id="dash-biz-name">Almacén Don Carlos</div>
         </div>
 
-        <!-- Referral Banner -->
-        <div class="referral-banner">
-          <div class="referral-badge-float">+$5.000 de crédito</div>
-          <div class="referral-banner-eyebrow">⭐ Programa de referidos</div>
-          <div class="referral-banner-title">
-            Recomendá un comercio asociado<br>
-            y <span class="referral-accent">mejorá tu crédito!</span>
-          </div>
-          <div class="referral-banner-sub">
-            Cada almacén o kiosco que traigas suma $5.000 a tu línea de crédito disponible. Sin límite de referidos.
-          </div>
-          <button class="referral-banner-cta" onclick="shareReferralLink(event)">
-            <span>Compartir mi link</span>
-            <span>→</span>
-          </button>
-        </div>
+        <!-- Payment alert (conditional, shown by JS) -->
+        <div id="dash-alert" style="display:none" role="alert" aria-live="polite"></div>
 
         <!-- BCRA check banner (visible only after login) -->
         <div id="bcra-banner" style="display:none"></div>
@@ -3249,42 +3991,40 @@
         <div class="credit-card">
           <div class="credit-card-label">Línea de crédito disponible</div>
           <div class="credit-amount" id="dash-credit">$50.000</div>
-          <div class="credit-sub">Para adelantos de stock</div>
+          <div class="credit-sub" id="dash-credit-sub">Para adelantos de stock</div>
+          <div class="credit-utilization" id="dash-utilization" style="display:none">
+            <div class="credit-util-track">
+              <div class="credit-util-fill" id="dash-util-fill"></div>
+            </div>
+            <div class="credit-util-labels">
+              <span id="dash-util-available"></span>
+              <span id="dash-util-used"></span>
+            </div>
+          </div>
           <div class="credit-footer">
             <div class="credit-badge">Nivel 1 · En crecimiento</div>
-            <div class="credit-logo-mark">
-            <svg width="20" height="18" viewBox="0 0 26 24" fill="none">
-              <path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="11" cy="21" r="2.2" fill="white"/>
-              <circle cx="19.5" cy="21" r="2.2" fill="white"/>
-              <path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
+            <button class="credit-card-cta" id="dash-credit-cta" onclick="showView('adelantar')">
+              Adelantar →
+            </button>
           </div>
         </div>
-
-        <!-- CTA Adelantar -->
-        <button class="cta-adelantar" onclick="showView('adelantar')">
-          <div class="cta-icon">➕</div>
-          Adelantar stock
-        </button>
 
         <!-- Quick stats -->
         <div class="quick-stats">
           <div class="stat-card">
             <div class="stat-card-icon">📦</div>
             <div class="stat-card-val" id="dash-productos-count">0</div>
-            <div class="stat-card-label">Productos activos</div>
+            <div class="stat-card-label" id="dash-productos-label">Productos activos</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-icon">📅</div>
             <div class="stat-card-val" id="dash-adelantos-count">0</div>
-            <div class="stat-card-label">Adelantos totales</div>
+            <div class="stat-card-label" id="dash-adelantos-label">Adelantos totales</div>
           </div>
           <div class="stat-card">
             <div class="stat-card-icon">✅</div>
             <div class="stat-card-val" id="dash-pagados-count">0</div>
-            <div class="stat-card-label">Pagados a término</div>
+            <div class="stat-card-label" id="dash-pagados-label">Pagados a término</div>
           </div>
         </div>
 
@@ -3296,6 +4036,36 @@
 
         <div id="dash-stock-preview">
           <!-- filled by JS -->
+        </div>
+
+        <!-- ADN Social card -->
+        <div class="adn-card" onclick="showView('adnsocial')">
+          <div class="adn-card-header">
+            <div class="adn-card-eyebrow">🧬 ADN Social</div>
+            <div class="adn-level-badge" id="dash-adn-badge">Básico</div>
+          </div>
+          <div class="adn-strength-bar">
+            <div class="adn-strength-fill" id="dash-adn-fill" style="width:5%"></div>
+          </div>
+          <div class="adn-actions">
+            <div class="adn-action-row">
+              <span class="adn-action-icon">📄</span>
+              <div>
+                <div class="adn-action-title">Subí facturas, recibos y remitos</div>
+                <div class="adn-action-sub">Cada documento suma puntos a tu perfil crediticio</div>
+              </div>
+            </div>
+            <div class="adn-action-row">
+              <span class="adn-action-icon">👥</span>
+              <div>
+                <div class="adn-action-title">Recomendá un comercio asociado</div>
+                <div class="adn-action-sub">+$5.000 de crédito disponible por referido</div>
+              </div>
+            </div>
+          </div>
+          <div class="adn-card-footer">
+            <div class="adn-card-cta">Completar mi perfil →</div>
+          </div>
         </div>
 
       </div>
@@ -3345,6 +4115,9 @@
           <div class="header-user-name" id="adelantar-header-name">Mi Negocio</div>
           <div class="avatar" id="adelantar-avatar" onclick="toggleHeaderMenu(event)">MN</div>
           <div class="header-menu" id="adelantar-menu">
+            <div class="header-menu-item" onclick="showView('adnsocial')" style="color:#6366f1">
+              🧬 ADN Social
+            </div>
             <div class="header-menu-item danger" onclick="handleLogout()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Cerrar sesión
@@ -3587,6 +4360,9 @@
           <div class="header-user-name" id="stock-header-name">Mi Negocio</div>
           <div class="avatar" id="stock-avatar" onclick="toggleHeaderMenu(event)">MN</div>
           <div class="header-menu" id="stock-menu">
+            <div class="header-menu-item" onclick="showView('adnsocial')" style="color:#6366f1">
+              🧬 ADN Social
+            </div>
             <div class="header-menu-item danger" onclick="handleLogout()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Cerrar sesión
@@ -3666,6 +4442,9 @@
           <div class="header-user-name" id="deposito-header-name">Mi Negocio</div>
           <div class="avatar" id="deposito-avatar" onclick="toggleHeaderMenu(event)">MN</div>
           <div class="header-menu" id="deposito-menu">
+            <div class="header-menu-item" onclick="showView('adnsocial')" style="color:#6366f1">
+              🧬 ADN Social
+            </div>
             <div class="header-menu-item danger" onclick="handleLogout()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Cerrar sesión
@@ -3698,6 +4477,156 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
+     VISTA: ADN SOCIAL
+═══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-adnsocial">
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <div class="app-logo" onclick="showView('dashboard')">
+          <div class="app-logo-mark">
+            <svg width="18" height="16" viewBox="0 0 26 24" fill="none"><path d="M1.5 2H5L8.5 15H20.5L24 6.5H7.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="21" r="2.2" fill="white"/><circle cx="19.5" cy="21" r="2.2" fill="white"/><path d="M12 10.5h6.5M16 8l3 2.5L16 13" stroke="white" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="app-logo-text">Stock<span>Ya</span></div>
+        </div>
+        <div class="header-user">
+          <div class="header-user-name" id="adn-header-name">Mi Negocio</div>
+          <div class="avatar" id="adn-avatar" onclick="toggleHeaderMenu(event)">MN</div>
+          <div class="header-menu" id="adn-menu">
+            <div class="header-menu-item danger" onclick="handleLogout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-content">
+      <div class="page-container">
+
+        <!-- Score hero -->
+        <div class="adn-score-hero">
+          <div class="adn-score-inner">
+            <div class="adn-score-label">Tu identidad crediticia</div>
+            <div class="adn-score-title" id="adn-level-name">Perfil Básico</div>
+            <div class="adn-score-pts" id="adn-points-label">0 puntos acumulados</div>
+            <div class="adn-score-bar">
+              <div class="adn-score-fill" id="adn-score-fill" style="width:5%"></div>
+            </div>
+            <div class="adn-score-levels">
+              <span id="adn-lv-basico" class="active-level">Básico</span>
+              <span id="adn-lv-activo">Activo</span>
+              <span id="adn-lv-verificado">Verificado</span>
+              <span id="adn-lv-premium">Premium</span>
+            </div>
+            <div class="adn-boost-tag" id="adn-boost-tag">
+              <span>📈</span>
+              <span>Completá tu perfil para <strong>aumentar tu límite de crédito</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentos -->
+        <div class="adn-section-title">Documentos del negocio</div>
+        <div style="font-size:13px;color:var(--neutral-400);margin-bottom:16px;margin-top:-8px">
+          Cada documento que cargues fortalece tu historial y puede aumentar tu límite de crédito.
+        </div>
+        <div class="adn-doc-grid">
+          <div class="adn-doc-card" id="adn-doc-factura" onclick="triggerDocUpload('factura')">
+            <div class="adn-doc-icon">🧾</div>
+            <div class="adn-doc-name">Facturas</div>
+            <div class="adn-doc-pts">+200 pts c/u</div>
+            <div class="adn-doc-count" id="adn-count-factura">Sin cargar</div>
+          </div>
+          <div class="adn-doc-card" id="adn-doc-recibo" onclick="triggerDocUpload('recibo')">
+            <div class="adn-doc-icon">📋</div>
+            <div class="adn-doc-name">Recibos</div>
+            <div class="adn-doc-pts">+100 pts c/u</div>
+            <div class="adn-doc-count" id="adn-count-recibo">Sin cargar</div>
+          </div>
+          <div class="adn-doc-card" id="adn-doc-remito" onclick="triggerDocUpload('remito')">
+            <div class="adn-doc-icon">📦</div>
+            <div class="adn-doc-name">Remitos</div>
+            <div class="adn-doc-pts">+150 pts c/u</div>
+            <div class="adn-doc-count" id="adn-count-remito">Sin cargar</div>
+          </div>
+        </div>
+        <input type="file" id="adn-file-input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" multiple onchange="handleDocUpload(event)">
+
+        <!-- Actividad reciente -->
+        <div class="adn-section-title">Actividad reciente</div>
+        <div id="adn-log-list" class="adn-log">
+          <div class="adn-empty-docs">Aún no cargaste documentos.<br>Cada archivo suma puntos a tu perfil.</div>
+        </div>
+
+        <!-- Referidos — hero section -->
+        <div class="ref-hero">
+          <div class="ref-hero-glow"></div>
+          <div class="ref-hero-inner">
+            <div class="ref-hero-eyebrow">🔥 Mayor impacto en tu scoring</div>
+            <div class="ref-hero-title">Referir comercios es<br>lo que más suma</div>
+            <div class="ref-hero-impact-row">
+              <div class="ref-impact-pill">
+                <div class="ref-impact-val">+500</div>
+                <div class="ref-impact-lbl">pts por referido</div>
+              </div>
+              <div class="ref-impact-divider">vs</div>
+              <div class="ref-impact-pill ref-impact-pill--dim">
+                <div class="ref-impact-val">+200</div>
+                <div class="ref-impact-lbl">pts por factura</div>
+              </div>
+            </div>
+            <div class="ref-hero-sub">
+              Cada almacén o kiosco que traés suma <strong>$5.000 de crédito</strong>
+              y <strong>500 puntos</strong> a tu ADN Social — sin límite de referidos.
+            </div>
+            <button class="ref-hero-cta" onclick="shareReferralLink(event)">
+              <span>Compartir mi link de referido</span>
+              <span class="ref-hero-cta-arrow">→</span>
+            </button>
+          </div>
+          <div class="ref-hero-stats" id="adn-referidos-stats">
+            <div class="ref-stat">
+              <div class="ref-stat-val" id="adn-ref-count">0</div>
+              <div class="ref-stat-lbl">Referidos</div>
+            </div>
+            <div class="ref-stat-sep"></div>
+            <div class="ref-stat">
+              <div class="ref-stat-val" id="adn-ref-pts">0</div>
+              <div class="ref-stat-lbl">Puntos ganados</div>
+            </div>
+            <div class="ref-stat-sep"></div>
+            <div class="ref-stat">
+              <div class="ref-stat-val" id="adn-ref-credit">$0</div>
+              <div class="ref-stat-lbl">Crédito sumado</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de referidos -->
+        <div id="adn-referidos-list" class="adn-log" style="margin-bottom:24px"></div>
+
+        <!-- Metas gamificadas -->
+        <div class="adn-section-title">Metas del perfil</div>
+        <div style="font-size:13px;color:var(--neutral-400);margin-bottom:16px;margin-top:-8px">
+          Completá estas metas para desbloquear más crédito y beneficios.
+        </div>
+        <div id="adn-milestones-list" style="margin-bottom:32px"></div>
+
+      </div>
+    </div>
+
+    <nav class="app-bottom-nav">
+      <button class="nav-item" onclick="showView('dashboard')"><span class="nav-icon">🏠</span><span>Inicio</span></button>
+      <button class="nav-item" onclick="showView('adelantar')"><span class="nav-icon">➕</span><span>Adelantar</span></button>
+      <button class="nav-item" onclick="showView('mistock')"><span class="nav-icon">📦</span><span>Mi Stock</span></button>
+      <button class="nav-item active" onclick="showView('adnsocial')"><span class="nav-icon">🧬</span><span>ADN Social</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
      JAVASCRIPT
 ═══════════════════════════════════════════════════════════ -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3713,7 +4642,88 @@ const state = {
   selectedProvider: 'todos',
   stockItems: [],
   availableCredit: Infinity,
+  adn: {
+    documents: [],
+    referidos: [],
+  },
 };
+
+const ADN_POINTS = { factura: 200, recibo: 100, remito: 150, referido: 500 };
+const ADN_LEVELS = [
+  { name: 'Básico',     minPts: 0,    maxPts: 499,  boost: null,   cls: '' },
+  { name: 'Activo',     minPts: 500,  maxPts: 1499, boost: '+20%', cls: 'activo' },
+  { name: 'Verificado', minPts: 1500, maxPts: 2999, boost: '+50%', cls: 'verificado' },
+  { name: 'Premium',    minPts: 3000, maxPts: Infinity, boost: '+100%', cls: 'premium' },
+];
+
+const ADN_MILESTONES = [
+  {
+    id: 'first_doc',
+    icon: '📄',
+    title: 'Primera factura cargada',
+    desc: 'Cargá tu primera factura para comenzar tu historial',
+    reward: '+200 pts',
+    check: s => s.adn.documents.filter(d => d.type === 'factura').length >= 1,
+    progress: s => ({ cur: Math.min(1, s.adn.documents.filter(d => d.type === 'factura').length), max: 1 }),
+  },
+  {
+    id: 'tres_docs',
+    icon: '📁',
+    title: '3 documentos cargados',
+    desc: 'Factura, recibo y remito — perfil completo',
+    reward: '+100 pts extra',
+    check: s => s.adn.documents.length >= 3,
+    progress: s => ({ cur: Math.min(3, s.adn.documents.length), max: 3 }),
+  },
+  {
+    id: 'primer_referido',
+    icon: '👥',
+    title: 'Primer referido',
+    desc: 'Traé tu primer almacén o kiosco a StockYa',
+    reward: '+$5.000 crédito',
+    check: s => s.adn.referidos.length >= 1,
+    progress: s => ({ cur: Math.min(1, s.adn.referidos.length), max: 1 }),
+  },
+  {
+    id: 'nivel_activo',
+    icon: '⚡',
+    title: 'Alcanzá nivel Activo',
+    desc: 'Acumulá 500 puntos para aumentar tu límite un 20%',
+    reward: '+20% límite',
+    check: s => getADNState().total >= 500,
+    progress: s => ({ cur: Math.min(500, getADNState().total), max: 500 }),
+  },
+  {
+    id: 'tres_referidos',
+    icon: '🌟',
+    title: '3 comercios referidos',
+    desc: 'Construí tu red y maximizá tu crédito disponible',
+    reward: '+$15.000 crédito',
+    check: s => s.adn.referidos.length >= 3,
+    progress: s => ({ cur: Math.min(3, s.adn.referidos.length), max: 3 }),
+  },
+  {
+    id: 'nivel_verificado',
+    icon: '🏅',
+    title: 'Nivel Verificado',
+    desc: 'Llegá a 1.500 puntos para +50% de límite de crédito',
+    reward: '+50% límite',
+    check: s => getADNState().total >= 1500,
+    progress: s => ({ cur: Math.min(1500, getADNState().total), max: 1500 }),
+  },
+];
+
+function getADNState() {
+  const docPts = state.adn.documents.reduce((s, d) => s + d.points, 0);
+  const refPts = state.adn.referidos.length * ADN_POINTS.referido;
+  const total = docPts + refPts;
+  const level = ADN_LEVELS.find(l => total >= l.minPts && total <= l.maxPts) || ADN_LEVELS[0];
+  const nextLevel = ADN_LEVELS[ADN_LEVELS.indexOf(level) + 1];
+  const pct = nextLevel
+    ? Math.min(95, Math.round(((total - level.minPts) / (nextLevel.minPts - level.minPts)) * 100))
+    : 100;
+  return { total, level, nextLevel, pct };
+}
 
 /* ─── Catalog defaults (API overrides on init if reachable) ── */
 let PROVIDERS = [
@@ -3757,9 +4767,10 @@ const VIEW_MAP = {
   adelantar:  'view-adelantar',
   mistock:    'view-mistock',
   deposito:   'view-deposito',
+  adnsocial:  'view-adnsocial',
 };
 
-const TOP_TAB_VIEWS = ['dashboard', 'adelantar', 'mistock', 'deposito'];
+const TOP_TAB_VIEWS = ['dashboard', 'adelantar', 'mistock', 'deposito', 'adnsocial'];
 
 function showView(name) {
   Object.values(VIEW_MAP).forEach(id => {
@@ -3777,6 +4788,7 @@ function showView(name) {
   if (name === 'adelantar')  { state.selectedProvider = 'todos'; renderProviderBar(); renderProducts(); renderAdelantarStep(1); }
   if (name === 'mistock')    renderMiStock();
   if (name === 'deposito')   renderDeposito();
+  if (name === 'adnsocial')  renderADNSocial();
 
   const strip = document.getElementById('top-tab-strip');
   if (TOP_TAB_VIEWS.includes(name)) {
@@ -3790,7 +4802,7 @@ function showView(name) {
 }
 
 /* ─── Header menu ─────────────────────────────────────────── */
-const HEADER_MENUS = ['header-menu', 'adelantar-menu', 'stock-menu', 'deposito-menu'];
+const HEADER_MENUS = ['header-menu', 'adelantar-menu', 'stock-menu', 'deposito-menu', 'adn-menu'];
 
 function closeAllHeaderMenus() {
   HEADER_MENUS.forEach(id => document.getElementById(id)?.classList.remove('open'));
@@ -4196,16 +5208,82 @@ async function renderDashboard() {
       apiFetch(`/api/businesses/${state.biz.id}/dashboard`),
       loadAdvances(),
     ]);
-    const available = stats.business.creditLimit - stats.business.creditUsed;
+    const { creditLimit, creditUsed } = stats.business;
+    const available = creditLimit - creditUsed;
     state.availableCredit = available;
-    document.getElementById('dash-credit').textContent        = '$' + available.toLocaleString('es-AR');
-    document.getElementById('dash-productos-count').textContent = stats.activeProducts;
-    document.getElementById('dash-adelantos-count').textContent = stats.totalAdelantos;
-    document.getElementById('dash-pagados-count').textContent   = stats.totalPagados;
+
+    document.getElementById('dash-credit').textContent = '$' + available.toLocaleString('es-AR');
+
+    renderDashboardAlert();
+    renderDashboardUtilization(creditLimit, creditUsed, available);
+    renderDashboardStats(stats.activeProducts, stats.totalAdelantos, stats.totalPagados);
     renderDashboardPreview();
+    renderDashboardADNCard();
   } catch (err) {
     console.error('Dashboard load error:', err);
   }
+}
+
+function renderDashboardAlert() {
+  const el = document.getElementById('dash-alert');
+  const overdue = state.stockItems.filter(e => e.status === 'danger');
+  const dueSoon = state.stockItems.filter(e => e.status === 'warn');
+
+  if (overdue.length > 0) {
+    const total = overdue.reduce((s, e) => s + e.total, 0);
+    el.className = 'bcra-banner block';
+    el.innerHTML = `
+      <div class="bcra-banner-icon">✗</div>
+      <div class="bcra-banner-body" onclick="showView('mistock')" style="cursor:pointer;flex:1">
+        <strong>Pago vencido · Tu crédito está suspendido</strong>
+        <span>$${total.toLocaleString('es-AR')} pendiente — Tocá para pagar</span>
+      </div>`;
+    el.style.display = 'flex';
+    const cta = document.getElementById('dash-credit-cta');
+    cta.textContent = 'Crédito suspendido';
+    cta.classList.add('disabled');
+    cta.onclick = null;
+  } else if (dueSoon.length > 0) {
+    const nearest = dueSoon[0];
+    el.className = 'bcra-banner warn';
+    el.innerHTML = `
+      <div class="bcra-banner-icon">⚠</div>
+      <div class="bcra-banner-body" onclick="showView('mistock')" style="cursor:pointer;flex:1">
+        <strong>Vencimiento próximo</strong>
+        <span>$${nearest.total.toLocaleString('es-AR')} vence el ${nearest.dueDate} — Tocá para ver</span>
+      </div>`;
+    el.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+    const cta = document.getElementById('dash-credit-cta');
+    cta.textContent = 'Adelantar →';
+    cta.classList.remove('disabled');
+    cta.onclick = () => showView('adelantar');
+  }
+}
+
+function renderDashboardUtilization(limit, used, available) {
+  const utilEl = document.getElementById('dash-utilization');
+  if (!limit || used === 0) {
+    utilEl.style.display = 'none';
+    document.getElementById('dash-credit-sub').textContent = 'Para adelantos de stock';
+    return;
+  }
+  const pct = Math.min(100, Math.round((used / limit) * 100));
+  document.getElementById('dash-util-fill').style.width = pct + '%';
+  document.getElementById('dash-util-available').textContent = 'Disponible: $' + available.toLocaleString('es-AR');
+  document.getElementById('dash-util-used').textContent = 'En uso: $' + used.toLocaleString('es-AR');
+  document.getElementById('dash-credit-sub').textContent = 'De $' + limit.toLocaleString('es-AR') + ' de límite';
+  utilEl.style.display = 'block';
+}
+
+function renderDashboardStats(products, adelantos, pagados) {
+  document.getElementById('dash-productos-count').textContent = products;
+  document.getElementById('dash-adelantos-count').textContent = adelantos;
+  document.getElementById('dash-pagados-count').textContent   = pagados;
+  document.getElementById('dash-productos-label').textContent  = products === 0  ? 'Sin adelantos aún'    : 'Productos activos';
+  document.getElementById('dash-adelantos-label').textContent  = adelantos === 0 ? 'Tu historial empieza aquí' : 'Adelantos totales';
+  document.getElementById('dash-pagados-label').textContent    = pagados === 0   ? '—'                    : 'Pagados a término';
 }
 
 function renderDashboardPreview() {
@@ -4835,6 +5913,161 @@ async function confirmDelivery() {
   } finally {
     btn.disabled = false;
   }
+}
+
+/* ─── ADN Social ──────────────────────────────────────────── */
+function renderADNSocial() {
+  const { total, level, nextLevel, pct } = getADNState();
+
+  // Update header name
+  const bizName = state.biz.name || 'Mi Negocio';
+  const initials = bizName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const nameEl = document.getElementById('adn-header-name');
+  const avatarEl = document.getElementById('adn-avatar');
+  if (nameEl) nameEl.textContent = bizName;
+  if (avatarEl) avatarEl.textContent = initials;
+
+  // Score hero
+  document.getElementById('adn-level-name').textContent = 'Perfil ' + level.name;
+  document.getElementById('adn-points-label').textContent = total + ' puntos acumulados';
+  document.getElementById('adn-score-fill').style.width = Math.max(5, pct) + '%';
+
+  // Level highlights
+  ['basico', 'activo', 'verificado', 'premium'].forEach(lv => {
+    const el = document.getElementById('adn-lv-' + lv);
+    if (el) el.classList.toggle('active-level', lv === level.name.toLowerCase());
+  });
+
+  // Boost tag
+  const boostEl = document.getElementById('adn-boost-tag');
+  if (level.boost) {
+    boostEl.innerHTML = `<span>📈</span><span>Tu límite aumentó <strong>${level.boost}</strong> por tu nivel ${level.name}</span>`;
+  } else if (nextLevel) {
+    const needed = nextLevel.minPts - total;
+    boostEl.innerHTML = `<span>📈</span><span>Necesitás <strong>${needed} pts más</strong> para nivel ${nextLevel.name} (${nextLevel.boost} de crédito)</span>`;
+  } else {
+    boostEl.innerHTML = `<span>🏆</span><span>¡Nivel máximo! Crédito potenciado al <strong>100%</strong></span>`;
+  }
+
+  // Doc cards
+  ['factura', 'recibo', 'remito'].forEach(type => {
+    const docs = state.adn.documents.filter(d => d.type === type);
+    const card = document.getElementById('adn-doc-' + type);
+    const countEl = document.getElementById('adn-count-' + type);
+    if (docs.length > 0) {
+      card.classList.add('uploaded');
+      countEl.textContent = docs.length + ' cargado' + (docs.length > 1 ? 's' : '');
+    } else {
+      card.classList.remove('uploaded');
+      countEl.textContent = 'Sin cargar';
+    }
+  });
+
+  // Activity log
+  const logEl = document.getElementById('adn-log-list');
+  if (state.adn.documents.length === 0) {
+    logEl.innerHTML = '<div class="adn-empty-docs">Aún no cargaste documentos.<br>Cada archivo suma puntos a tu perfil.</div>';
+  } else {
+    const iconMap = { factura: '🧾', recibo: '📋', remito: '📦' };
+    logEl.innerHTML = [...state.adn.documents].reverse().map(d => `
+      <div class="adn-log-item">
+        <span class="adn-log-icon">${iconMap[d.type]}</span>
+        <span class="adn-log-name">${d.name}</span>
+        <span class="adn-log-pts">+${d.points} pts</span>
+      </div>`).join('');
+  }
+
+  // Referidos
+  renderADNReferidos();
+  renderADNMilestones();
+}
+
+function renderADNReferidos() {
+  const refs = state.adn.referidos;
+  const listEl = document.getElementById('adn-referidos-list');
+
+  const countEl  = document.getElementById('adn-ref-count');
+  const ptsEl    = document.getElementById('adn-ref-pts');
+  const creditEl = document.getElementById('adn-ref-credit');
+  if (countEl)  countEl.textContent  = refs.length;
+  if (ptsEl)    ptsEl.textContent    = (refs.length * ADN_POINTS.referido).toLocaleString('es-AR');
+  if (creditEl) creditEl.textContent = '$' + (refs.length * 5000).toLocaleString('es-AR');
+
+  if (!listEl) return;
+  if (refs.length === 0) {
+    listEl.innerHTML = '';
+    return;
+  }
+
+  listEl.innerHTML = refs.map(r => {
+    const initials = r.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    return `
+      <div class="adn-ref-item">
+        <div class="adn-ref-item-avatar">${initials}</div>
+        <div class="adn-ref-item-body">
+          <div class="adn-ref-item-name">${r.name}</div>
+          <div class="adn-ref-item-date">Se unió el ${r.date}</div>
+        </div>
+        <div class="adn-ref-item-credit">+$5.000</div>
+      </div>`;
+  }).join('');
+}
+
+function renderADNMilestones() {
+  const el = document.getElementById('adn-milestones-list');
+  if (!el) return;
+  el.innerHTML = ADN_MILESTONES.map(m => {
+    const done = m.check(state);
+    const { cur, max } = m.progress(state);
+    const pct = Math.round((cur / max) * 100);
+    return `
+      <div class="adn-milestone ${done ? 'completed' : (cur === 0 ? 'locked' : '')}">
+        <div class="adn-milestone-icon">${done ? '✅' : m.icon}</div>
+        <div class="adn-milestone-body">
+          <div class="adn-milestone-title">${m.title}</div>
+          <div class="adn-milestone-desc">${m.desc}</div>
+          <div class="adn-milestone-bar">
+            <div class="adn-milestone-fill" style="width:${done ? 100 : pct}%"></div>
+          </div>
+          <div class="adn-milestone-progress">${done ? 'Completada' : cur + ' / ' + max}</div>
+        </div>
+        <div class="adn-milestone-reward">${done ? '✓ ' : ''}${m.reward}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderDashboardADNCard() {
+  const { level, pct } = getADNState();
+  const badge = document.getElementById('dash-adn-badge');
+  const fill = document.getElementById('dash-adn-fill');
+  if (badge) {
+    badge.textContent = level.name;
+    badge.className = 'adn-level-badge' + (level.cls ? ' ' + level.cls : '');
+  }
+  if (fill) fill.style.width = Math.max(5, pct) + '%';
+}
+
+let _adnPendingType = null;
+
+function triggerDocUpload(type) {
+  _adnPendingType = type;
+  const input = document.getElementById('adn-file-input');
+  input.value = '';
+  input.click();
+}
+
+function handleDocUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length || !_adnPendingType) return;
+  const pts = ADN_POINTS[_adnPendingType];
+  files.forEach(f => {
+    state.adn.documents.push({ type: _adnPendingType, name: f.name, points: pts });
+  });
+  _adnPendingType = null;
+  renderADNSocial();
+  renderDashboardADNCard();
+  const total = files.length * pts;
+  showToast(`+${total} puntos sumados a tu ADN Social`);
 }
 
 /* ─── Toast helper ────────────────────────────────────────── */
